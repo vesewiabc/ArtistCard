@@ -1,1 +1,1 @@
-# ArtistCard
+<h1 align = "center"> Карточка сайта артиста </h1>
