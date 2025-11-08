@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портфолио создано!</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .welcome-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+        .checkmark {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        .btn-custom {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/user">Портфолио</a>
+            <div class="navbar-nav ms-auto">
+                <span class="navbar-text me-3">{{ username }}</span>
+                <a class="nav-link" href="/logout">Выйти</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="welcome-section">
+        <div class="container">
+            <div class="checkmark">✓</div>
+            <h1 class="display-4 fw-bold mb-4">Портфолио успешно создано!</h1>
+            <p class="lead mb-4">Поздравляем, {{ profile.full_name if profile else username }}! Ваше профессиональное портфолио готово.</p>
+            
+            <div class="row justify-content-center mt-5">
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body p-4">
+                            <h4 class="mb-3">Что дальше?</h4>
+                            <div class="row text-dark">
+                                <div class="col-md-6 mb-3">
+                                    <i class="fas fa-eye fa-2x text-primary mb-2"></i>
+                                    <h5>Просмотр портфолио</h5>
+                                    <p>Посмотрите как выглядит ваше готовое портфолио</p>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <i class="fas fa-edit fa-2x text-success mb-2"></i>
+                                    <h5>Редактирование</h5>
+                                    <p>В любой момент можете изменить информацию</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-4">
+                                
+                                <a href="/user/create_portfolio" class="btn btn-outline-primary">
+                                    Редактировать
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h3 class="mb-4">Спасибо за использование нашей платформы!</h3>
+                <p class="text-muted">Ваше портфолио теперь доступно в системе. Вы можете просматривать и редактировать его в любое время.</p>
+                <a href="/user" class="btn btn-secondary">На главную</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

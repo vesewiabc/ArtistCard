@@ -19,9 +19,10 @@ def create_tables():
     )
     ''')
     
-    # Таблица профилей пользователей
+    # Таблица профилей пользователей - УДАЛЯЕМ СТАРУЮ И СОЗДАЕМ НОВУЮ
+    cursor.execute('DROP TABLE IF EXISTS user_profiles')
     cursor.execute('''
-    CREATE TABLE IF NOT EXISTS user_profiles (
+    CREATE TABLE user_profiles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         full_name TEXT,
@@ -31,6 +32,7 @@ def create_tables():
         skills TEXT,
         experience TEXT,
         education TEXT,
+        is_completed BOOLEAN DEFAULT FALSE,
         FOREIGN KEY (user_id) REFERENCES users (id)
     )
     ''')
@@ -114,14 +116,15 @@ def admin():
     if session['username'] != 'admin':
         return redirect('/user')
 
-    # Получаем список всех пользователей (кроме админа)
+    # Получаем список всех пользователей (кроме админа) с их профилями
     try:
         connection = get_db_connection()
         users = connection.execute('''
-            SELECT u.id, u.username, up.full_name 
+            SELECT u.id, u.username, up.full_name, up.is_completed 
             FROM users u 
             LEFT JOIN user_profiles up ON u.id = up.user_id 
             WHERE u.username != 'admin'
+            ORDER BY up.is_completed, u.id
         ''').fetchall()
         connection.close()
     except Exception as e:
@@ -154,21 +157,21 @@ def edit_user(user_id):
             ).fetchone()
             
             if existing_profile:
-                # Обновляем существующий профиль
+                # Обновляем существующий профиль и отмечаем как завершенный
                 connection.execute('''
                     UPDATE user_profiles 
-                    SET full_name = ?, email = ?, phone = ?, bio = ?, skills = ?, experience = ?, education = ?
+                    SET full_name = ?, email = ?, phone = ?, bio = ?, skills = ?, experience = ?, education = ?, is_completed = TRUE
                     WHERE user_id = ?
                 ''', (full_name, email, phone, bio, skills, experience, education, user_id))
             else:
-                # Создаем новый профиль
+                # Создаем новый профиль и отмечаем как завершенный
                 connection.execute('''
-                    INSERT INTO user_profiles (user_id, full_name, email, phone, bio, skills, experience, education)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO user_profiles (user_id, full_name, email, phone, bio, skills, experience, education, is_completed)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
                 ''', (user_id, full_name, email, phone, bio, skills, experience, education))
             
             connection.commit()
-            flash('Профиль пользователя успешно сохранен!', 'success')
+            flash('Профиль пользователя успешно сохранен и опубликован!', 'success')
         except Exception as e:
             print(f"Ошибка сохранения профиля: {e}")
             flash('Ошибка при сохранении профиля', 'error')
@@ -199,25 +202,112 @@ def user():
     if 'username' not in session:
         return redirect('/login')
     
-    # Получаем данные профиля пользователя
+    # Проверяем, есть ли у пользователя заполненный профиль
+    try:
+        connection = get_db_connection()
+        profile = connection.execute('''
+            SELECT * FROM user_profiles 
+            WHERE user_id = ? AND is_completed = TRUE
+        '''.strip(), (session['user_id'],)).fetchone()
+        connection.close()
+    except Exception as e:
+        print(f"Ошибка получения профиля: {e}")
+        profile = None
+    
+    return render_template('user.html', 
+                         username=session['username'],
+                         has_portfolio=profile is not None)
+
+@app.route('/user/create_portfolio')
+def create_portfolio():
+    if 'username' not in session:
+        return redirect('/login')
+    
+    # Получаем данные профиля пользователя (если уже есть)
     try:
         connection = get_db_connection()
         profile = connection.execute('''
             SELECT * FROM user_profiles 
             WHERE user_id = ?
-        ''', (session['user_id'],)).fetchone()
-        
-        user_data = connection.execute('SELECT * FROM users WHERE id = ?', (session['user_id'],)).fetchone()
+        '''.strip(), (session['user_id'],)).fetchone()
         connection.close()
     except Exception as e:
         print(f"Ошибка получения профиля: {e}")
         profile = None
-        user_data = None
     
-    return render_template('user.html', 
-                         username=session['username'], 
-                         profile=profile,
-                         user_data=user_data)
+    return render_template('create_portfolio.html', 
+                         username=session['username'],
+                         profile=profile)
+
+@app.route('/user/save_portfolio', methods=['POST'])
+def save_portfolio():
+    if 'username' not in session:
+        return redirect('/login')
+    
+    full_name = request.form['full_name']
+    email = request.form['email']
+    phone = request.form['phone']
+    bio = request.form['bio']
+    skills = request.form['skills']
+    experience = request.form['experience']
+    education = request.form['education']
+    
+    try:
+        connection = get_db_connection()
+        
+        # Проверяем, существует ли уже профиль
+        existing_profile = connection.execute(
+            'SELECT * FROM user_profiles WHERE user_id = ?', (session['user_id'],)
+        ).fetchone()
+        
+        if existing_profile:
+            # Обновляем существующий профиль (но не отмечаем как завершенный - это сделает админ)
+            connection.execute('''
+                UPDATE user_profiles 
+                SET full_name = ?, email = ?, phone = ?, bio = ?, skills = ?, experience = ?, education = ?, is_completed = FALSE
+                WHERE user_id = ?
+            ''', (full_name, email, phone, bio, skills, experience, education, session['user_id']))
+        else:
+            # Создаем новый профиль (но не отмечаем как завершенный - это сделает админ)
+            connection.execute('''
+                INSERT INTO user_profiles (user_id, full_name, email, phone, bio, skills, experience, education, is_completed)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE)
+            ''', (session['user_id'], full_name, email, phone, bio, skills, experience, education))
+        
+        connection.commit()
+        connection.close()
+        
+        flash('Ваши данные сохранены! Ожидайте, пока администратор проверит и опубликует ваше портфолио.', 'success')
+        return redirect('/user')
+        
+    except Exception as e:
+        print(f"Ошибка сохранения портфолио: {e}")
+        return render_template('create_portfolio.html', error="Ошибка при сохранении")
+
+@app.route('/user/view_portfolio')
+def view_portfolio():
+    if 'username' not in session:
+        return redirect('/login')
+    
+    # Получаем данные профиля пользователя только если он завершен админом
+    try:
+        connection = get_db_connection()
+        profile = connection.execute('''
+            SELECT * FROM user_profiles 
+            WHERE user_id = ? AND is_completed = TRUE
+        '''.strip(), (session['user_id'],)).fetchone()
+        connection.close()
+    except Exception as e:
+        print(f"Ошибка получения профиля: {e}")
+        profile = None
+    
+    if not profile:
+        flash('Ваше портфолио еще не проверено администратором или не заполнено.', 'warning')
+        return redirect('/user')
+    
+    return render_template('view_portfolio.html', 
+                         username=session['username'],
+                         profile=profile)
 
 @app.route('/logout')
 def logout():
