@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 app.secret_key = '123'
 
-# Таблицы для хранения пользователей и их данных
+
 def create_tables():
     connection = sqlite3.connect('users.db')
     cursor = connection.cursor()
@@ -19,7 +19,7 @@ def create_tables():
     )
     ''')
     
-    # Таблица профилей пользователей - УДАЛЯЕМ СТАРУЮ И СОЗДАЕМ НОВУЮ
+    
     cursor.execute('DROP TABLE IF EXISTS user_profiles')
     cursor.execute('''
     CREATE TABLE user_profiles (
@@ -37,7 +37,7 @@ def create_tables():
     )
     ''')
     
-    # Создаем администратора по умолчанию
+    
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
     admin_exists = cursor.fetchone()
     if not admin_exists:
@@ -316,4 +316,5 @@ def logout():
 
 if __name__ == '__main__':
     create_tables()
+
     app.run(debug=True, host='0.0.0.0', port=5555)
