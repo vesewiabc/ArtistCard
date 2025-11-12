@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мое резюме</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .resume-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .resume-header {
+            text-align: center;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .resume-section {
+            margin-bottom: 25px;
+        }
+        .resume-section h3 {
+            color: #007bff;
+            border-bottom: 2px solid #e9ecef;
+            padding-bottom: 8px;
+            margin-bottom: 15px;
+        }
+        .resume-item {
+            margin-bottom: 15px;
+        }
+        .resume-label {
+            font-weight: bold;
+            color: #495057;
+        }
+        .print-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        @media print {
+            .print-btn {
+                display: none;
+            }
+            .resume-container {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Кнопка печати -->
+    <button class="btn btn-primary print-btn" onclick="window.print()">
+        <i class="fas fa-print"></i> Печать
+    </button>
+
+    <div class="container mt-4 mb-4">
+        <div class="resume-container">
+            <!-- Заголовок резюме -->
+            <div class="resume-header">
+                <h1 class="display-4">{{ profile.full_name }}</h1>
+                <div class="contact-info">
+                    {% if profile.email %}
+                    <span class="me-3"><i class="fas fa-envelope"></i> {{ profile.email }}</span>
+                    {% endif %}
+                    {% if profile.phone %}
+                    <span><i class="fas fa-phone"></i> {{ profile.phone }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Основная информация -->
+            <div class="resume-section">
+                <h3><i class="fas fa-user"></i> Личная информация</h3>
+                <div class="resume-item">
+                    <span class="resume-label">Имя:</span> {{ profile.full_name }}
+                </div>
+                {% if profile.email %}
+                <div class="resume-item">
+                    <span class="resume-label">Email:</span> {{ profile.email }}
+                </div>
+                {% endif %}
+                {% if profile.phone %}
+                <div class="resume-item">
+                    <span class="resume-label">Телефон:</span> {{ profile.phone }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- О себе -->
+            {% if profile.bio %}
+            <div class="resume-section">
+                <h3><i class="fas fa-info-circle"></i> О себе</h3>
+                <div class="resume-item">
+                    {{ profile.bio }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Навыки -->
+            {% if profile.skills %}
+            <div class="resume-section">
+                <h3><i class="fas fa-cogs"></i> Профессиональные навыки</h3>
+                <div class="resume-item">
+                    <span class="resume-label">Я обладаю следующими навыками:</span> {{ profile.skills }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Образование -->
+            {% if profile.education %}
+            <div class="resume-section">
+                <h3><i class="fas fa-graduation-cap"></i> Образование</h3>
+                <div class="resume-item">
+                    <span class="resume-label">Образовательные учреждения и курсы:</span> {{ profile.education }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Опыт работы -->
+            {% if profile.experience %}
+            <div class="resume-section">
+                <h3><i class="fas fa-briefcase"></i> Опыт работы</h3>
+                <div class="resume-item">
+                    <span class="resume-label">Профессиональный опыт:</span> {{ profile.experience }}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Дополнительная информация -->
+            <div class="resume-section">
+                <h3><i class="fas fa-star"></i> Дополнительная информация</h3>
+                <div class="resume-item">
+                    <span class="resume-label">Дата составления резюме:</span> {{ now.strftime('%d.%m.%Y') if now else 'Текущая дата' }}
+                </div>
+                <div class="resume-item">
+                    <span class="resume-label">Статус:</span> Проверено администратором
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки навигации -->
+        <div class="text-center mt-4">
+            <a href="/user/view_portfolio" class="btn btn-secondary">← Назад к портфолио</a>
+            <a href="/user" class="btn btn-primary">На главную</a>
+        </div>
+    </div>
+
+    <!-- Добавляем текущую дату через JavaScript -->
+    <script>
+        // Добавляем текущую дату в резюме
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date();
+            const dateString = now.toLocaleDateString('ru-RU');
+            const dateElements = document.querySelectorAll('.resume-item:last-child .resume-label');
+            if (dateElements.length > 0) {
+                const dateItem = document.createElement('div');
+                dateItem.className = 'resume-item';
+                dateItem.innerHTML = '<span class="resume-label">Дата составления резюме:</span> ' + dateString;
+                document.querySelector('.resume-section:last-child').insertBefore(dateItem, document.querySelector('.resume-section:last-child .resume-item:last-child'));
+            }
+        });
+    </script>
+
+    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

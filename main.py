@@ -5,7 +5,7 @@ import os
 app = Flask(__name__)
 app.secret_key = '123'
 
-
+# Таблицы для хранения пользователей и их данных
 def create_tables():
     connection = sqlite3.connect('users.db')
     cursor = connection.cursor()
@@ -19,10 +19,9 @@ def create_tables():
     )
     ''')
     
-    
-    cursor.execute('DROP TABLE IF EXISTS user_profiles')
+    # Таблица профилей пользователей
     cursor.execute('''
-    CREATE TABLE user_profiles (
+    CREATE TABLE IF NOT EXISTS user_profiles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         full_name TEXT,
@@ -37,7 +36,7 @@ def create_tables():
     )
     ''')
     
-    
+    # Создаем администратора по умолчанию
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
     admin_exists = cursor.fetchone()
     if not admin_exists:
@@ -295,7 +294,7 @@ def view_portfolio():
         profile = connection.execute('''
             SELECT * FROM user_profiles 
             WHERE user_id = ? AND is_completed = TRUE
-        '''.strip(), (session['user_id'],)).fetchone()
+        ''', (session['user_id'],)).fetchone()
         connection.close()
     except Exception as e:
         print(f"Ошибка получения профиля: {e}")
@@ -309,12 +308,43 @@ def view_portfolio():
                          username=session['username'],
                          profile=profile)
 
+
+
+from datetime import datetime
+
+@app.route('/user/generate_resume')
+def generate_resume():
+    if 'username' not in session:
+        return redirect('/login')
+    
+    # Получаем данные профиля пользователя только если он завершен админом
+    try:
+        connection = get_db_connection()
+        profile = connection.execute('''
+            SELECT * FROM user_profiles 
+            WHERE user_id = ? AND is_completed = TRUE
+        ''', (session['user_id'],)).fetchone()
+        connection.close()
+    except Exception as e:
+        print(f"Ошибка получения профиля: {e}")
+        profile = None
+    
+    if not profile:
+        flash('Ваше портфолио еще не проверено администратором или не заполнено.', 'warning')
+        return redirect('/user')
+    
+    return render_template('resume.html', 
+                         username=session['username'],
+                         profile=profile,
+                         now=datetime.now())  # Добавляем текущую дату
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
 
+
+
+
 if __name__ == '__main__':
     create_tables()
-
     app.run(debug=True, host='0.0.0.0', port=5555)
