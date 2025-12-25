@@ -5,123 +5,419 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мое портфолио</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .resume-btn {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        /* Использую те же стили что и в create_portfolio.html */
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a0ca3;
+            --secondary: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-top: 70px;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .main-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .portfolio-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .page-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        .page-header h1 {
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .info-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--gray-light);
+        }
+        
+        .info-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .section-header {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+        
+        .info-content {
+            padding: 1rem 0;
+        }
+        
+        .info-item {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .info-icon {
+            color: var(--primary);
+            font-size: 1.2rem;
+            width: 24px;
+            flex-shrink: 0;
+        }
+        
+        .info-text {
+            flex: 1;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+        
+        .btn-action {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+color: white;
             border: none;
-            padding: 12px 30px;
-            font-size: 1.1rem;
+            border-radius: 10px;
+            padding: 12px 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            margin: 0.5rem;
+        }
+        
+        .btn-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(67, 97, 238, 0.3);
             color: white;
+        }
+        
+        .btn-secondary-action {
+            background: var(--gray);
+            color: white;
+        }
+        
+        .btn-success-action {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 2rem;
+        }
+        
+        .alert-message {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid var(--warning);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 15px;
+            }
+            
+            .portfolio-card {
+                padding: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="/user">Портфолио</a>
+            <a class="navbar-brand" href="/user">
+                <i class="fas fa-arrow-left"></i>
+                <span>Назад в личный кабинет</span>
+            </a>
             <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">{{ username }}</span>
-                <a class="nav-link" href="/logout">Выйти</a>
+                <span class="navbar-text me-3">
+                    <i class="fas fa-user-circle me-1"></i> {{ username }}
+                </span>
+                <a class="nav-link" href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </a>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <!-- Основной контент -->
+    <div class="main-container">
+        <!-- Заголовок -->
+        <div class="page-header fade-in">
+            <h1>Мое портфолио</h1>
+            <p>Профессиональное портфолио пользователя</p>
+        </div>
+
         {% if profile %}
-        <div class="row">
-            <div class="col-12 text-center mb-4">
-                <h1>Портфолио {{ profile.full_name }}</h1>
-                <p class="lead">Профессиональное портфолио</p>
-                
-                <!-- Кнопка генерации резюме -->
-                <div class="mb-4">
-                    <a href="/user/generate_resume" class="btn resume-btn btn-lg">
-                        <i class="fas fa-file-download"></i> Сформировать резюме
-                    </a>
+        <!-- Карточка портфолио -->
+        <div class="portfolio-card fade-in">
+            <!-- Основная информация -->
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-user-circle"></i>
+                    Основная информация
+                </div>
+                <div class="info-content">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="info-text">
+                            <div class="info-label">Полное имя:</div>
+                            <div>{{ profile.full_name }}</div>
+                        </div>
+                    </div>
+{% if profile.email %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-text">
+                            <div class="info-label">Email:</div>
+                            <div>{{ profile.email }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if profile.phone %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-text">
+                            <div class="info-label">Телефон:</div>
+                            <div>{{ profile.phone }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Основная информация</h4>
-                    </div>
-                    <div class="card-body">
-                        <h5>{{ profile.full_name }}</h5>
-                        {% if profile.email %}
-                        <p><strong>Email:</strong> {{ profile.email }}</p>
-                        {% endif %}
-                        {% if profile.phone %}
-                        <p><strong>Телефон:</strong> {{ profile.phone }}</p>
-                        {% endif %}
+            <!-- О себе -->
+            {% if profile.bio %}
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-info-circle"></i>
+                    О себе
+                </div>
+                <div class="info-content">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-quote-left"></i>
+                        </div>
+                        <div class="info-text">
+                            {{ profile.bio }}
+                        </div>
                     </div>
                 </div>
-                
-                {% if profile.skills %}
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h4>Навыки</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>{{ profile.skills }}</p>
-                    </div>
-                </div>
-                {% endif %}
-                
-                {% if profile.education %}
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h4>Образование</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>{{ profile.education }}</p>
-                    </div>
-                </div>
-                {% endif %}
             </div>
-            
-            <div class="col-md-8">
-                {% if profile.bio %}
-                <div class="card">
-                    <div class="card-header">
-                        <h4>О себе</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>{{ profile.bio }}</p>
-                    </div>
-                </div>
-                {% endif %}
-                
-                {% if profile.experience %}
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h4>Опыт работы</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>{{ profile.experience }}</p>
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+            {% endif %}
 
-        <div class="text-center mt-4">
-            <a href="/user/create_portfolio" class="btn btn-primary">Редактировать портфолио</a>
-            <a href="/user" class="btn btn-secondary">На главную</a>
+            <!-- Навыки -->
+            {% if profile.skills %}
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-cogs"></i>
+                    Навыки
+                </div>
+                <div class="info-content">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <div class="info-text">
+                            {{ profile.skills }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Образование -->
+            {% if profile.education %}
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-graduation-cap"></i>
+                    Образование
+                </div>
+                <div class="info-content">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-university"></i>
+                        </div>
+                        <div class="info-text">
+                            {{ profile.education }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Опыт работы -->
+            {% if profile.experience %}
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-briefcase"></i>
+                    Опыт работы
+                </div>
+                <div class="info-content">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="info-text">
+                            {{ profile.experience }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+<!-- Кнопки действий -->
+        <div class="action-buttons fade-in">
+            <a href="/user/generate_resume" class="btn-action btn-success-action">
+                <i class="fas fa-file-download"></i>
+                Сформировать резюме
+            </a>
+            <a href="/user/create_portfolio" class="btn-action">
+                <i class="fas fa-edit"></i>
+                Редактировать портфолио
+            </a>
+            <a href="/user" class="btn-action btn-secondary-action">
+                <i class="fas fa-home"></i>
+                На главную
+            </a>
         </div>
 
         {% else %}
-        <div class="alert alert-warning text-center">
-            <h4>Портфолио еще не создано</h4>
-            <p>Создайте свое первое портфолио, чтобы увидеть его здесь</p>
-            <a href="/user/create_portfolio" class="btn btn-primary">Создать портфолио</a>
+        <!-- Если портфолио нет -->
+        <div class="alert-message fade-in">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Портфолио еще не создано</strong><br>
+                Создайте свое первое портфолио, чтобы увидеть его здесь
+            </div>
+        </div>
+        
+        <div class="action-buttons fade-in">
+            <a href="/user/create_portfolio" class="btn-action">
+                <i class="fas fa-plus-circle"></i>
+                Создать портфолио
+            </a>
+            <a href="/user" class="btn-action btn-secondary-action">
+                <i class="fas fa-home"></i>
+                На главную
+            </a>
         </div>
         {% endif %}
     </div>
 
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
 </body>
 </html>
