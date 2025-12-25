@@ -59,9 +59,7 @@ ArtisCard/
 │└── welcome.html         # Приветственная страница
 └──README.md                # Этот файл
 
-копировать
-
-
+
 
 ---
 
@@ -75,15 +73,15 @@ cd ArtisCard
 
 2. Установка зависимостей
 
-'''bash
+```bash
 pip install flask
-'''
+```
 
 3. Запуск приложения
 
-'''bash
+```bash
 python app.py
-'''
+```
 
 4. Открытие в браузере
 
@@ -110,17 +108,15 @@ python app.py
 
 Отредактируйте строку в app.py:
 
-python
+```python
 app.run(debug=True, host='0.0.0.0', port=5555)  # Измените 5555 на нужный порт
-копировать
-
-
+```
 
 Настройка секретного ключа
 
-'''python
+```python
 app.secret_key = 'ваш-секретный-ключ'  # В app.py
-`
+```
 
 ---
 
@@ -173,4 +169,5 @@ user_profiles - хранит данные портфолио
 · /admin/edit_user/<int:user_id> → Редактирование профиля пользователя
 
 ---
+
 
