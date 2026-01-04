@@ -63,6 +63,13 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        confirm_password = request.form.get('confirm_password', '')
+
+        if password != confirm_password:
+            return render_template('register.html', error="Пароли не совпадают")
+
+        if len(password) < 6:
+            return render_template('register.html', error="Пароль должен содержать минимум 6 символов")
 
         try:
             connection = get_db_connection()
@@ -311,7 +318,6 @@ def view_portfolio():
     if 'username' not in session:
         return redirect('/login')
     
-    # Получаем данные профиля пользователя только если он завершен админом
     try:
         connection = get_db_connection()
         profile = connection.execute('''

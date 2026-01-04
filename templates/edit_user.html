@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактирование пользователя</title>
-    <!-- В начале <head> после мета-тегов -->
+    <title>Создание портфолио</title>
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* ... (остальные стили остаются без изменений) ... */
-    </style>
 </head>
-<body>
+<body class="form-fullpage">
     <!-- Навигация -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar">
         <div class="container">
-            <a class="navbar-brand" href="/admin">
+            <a class="navbar-brand" href="/user">
                 <i class="fas fa-arrow-left"></i>
-                <span>Назад к списку пользователей</span>
+                <span>Назад в личный кабинет</span>
             </a>
-            <div class="navbar-nav ms-auto">
+            <div class="navbar-nav">
                 <span class="navbar-text me-3">
-                    <i class="fas fa-user-shield me-1"></i> Администратор
+                    <i class="fas fa-user-circle me-1"></i> {{ username }}
                 </span>
                 <a class="nav-link" href="/logout">
                     <i class="fas fa-sign-out-alt"></i> Выйти
