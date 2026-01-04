@@ -4,53 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мое резюме</title>
+    <!-- В начале <head> после мета-тегов -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    <style>
-        .resume-container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-        .resume-header {
-            text-align: center;
-            border-bottom: 3px solid #007bff;
-            padding-bottom: 20px;
-            margin-bottom: 30px;
-        }
-        .resume-section {
-            margin-bottom: 25px;
-        }
-        .resume-section h3 {
-            color: #007bff;
-            border-bottom: 2px solid #e9ecef;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
-        }
-        .resume-item {
-            margin-bottom: 15px;
-        }
-        .resume-label {
-            font-weight: bold;
-            color: #495057;
-        }
-        .print-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-        @media print {
-            .print-btn {
-                display: none;
-            }
-            .resume-container {
-                box-shadow: none;
-                padding: 0;
-            }
-        }
-    </style>
+    
 </head>
 <body class="bg-light">
     <!-- Кнопка печати -->
@@ -79,11 +35,21 @@
                 <div class="resume-item">
                     <span class="resume-label">Имя:</span> {{ profile.full_name }}
                 </div>
+                
+                {% if profile.birth_date %}
+                <div class="resume-item">
+                    <span class="resume-label">Дата рождения:</span>
+                    {% set birth_date = profile.birth_date.split('-') %}
+                    {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
+                </div>
+                {% endif %}
+                
                 {% if profile.email %}
                 <div class="resume-item">
                     <span class="resume-label">Email:</span> {{ profile.email }}
                 </div>
                 {% endif %}
+                
                 {% if profile.phone %}
                 <div class="resume-item">
                     <span class="resume-label">Телефон:</span> {{ profile.phone }}

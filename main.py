@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, session, flash
 import sqlite3
 import os
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = '123'
@@ -25,6 +26,7 @@ def create_tables():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         full_name TEXT,
+        birth_date TEXT,
         email TEXT,
         phone TEXT,
         bio TEXT,
@@ -119,7 +121,7 @@ def admin():
     try:
         connection = get_db_connection()
         users = connection.execute('''
-            SELECT u.id, u.username, up.full_name, up.is_completed 
+            SELECT u.id, u.username, up.full_name, up.birth_date, up.is_completed 
             FROM users u 
             LEFT JOIN user_profiles up ON u.id = up.user_id 
             WHERE u.username != 'admin'
@@ -142,6 +144,7 @@ def edit_user(user_id):
     
     if request.method == 'POST':
         full_name = request.form['full_name']
+        birth_date = request.form['birth_date']
         email = request.form['email']
         phone = request.form['phone']
         bio = request.form['bio']
@@ -159,15 +162,17 @@ def edit_user(user_id):
                 # Обновляем существующий профиль и отмечаем как завершенный
                 connection.execute('''
                     UPDATE user_profiles 
-                    SET full_name = ?, email = ?, phone = ?, bio = ?, skills = ?, experience = ?, education = ?, is_completed = TRUE
+                    SET full_name = ?, birth_date = ?, email = ?, phone = ?, bio = ?, 
+                        skills = ?, experience = ?, education = ?, is_completed = TRUE
                     WHERE user_id = ?
-                ''', (full_name, email, phone, bio, skills, experience, education, user_id))
+                ''', (full_name, birth_date, email, phone, bio, skills, experience, education, user_id))
             else:
                 # Создаем новый профиль и отмечаем как завершенный
                 connection.execute('''
-                    INSERT INTO user_profiles (user_id, full_name, email, phone, bio, skills, experience, education, is_completed)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, TRUE)
-                ''', (user_id, full_name, email, phone, bio, skills, experience, education))
+                    INSERT INTO user_profiles (user_id, full_name, birth_date, email, phone, 
+                                              bio, skills, experience, education, is_completed)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                ''', (user_id, full_name, birth_date, email, phone, bio, skills, experience, education))
             
             connection.commit()
             flash('Профиль пользователя успешно сохранен и опубликован!', 'success')
@@ -234,9 +239,24 @@ def create_portfolio():
         print(f"Ошибка получения профиля: {e}")
         profile = None
     
+    # Список популярных учебных заведений для автозаполнения
+    education_suggestions = [
+        "Московский государственный университет",
+        "Санкт-Петербургский государственный университет",
+        "Высшая школа экономики",
+        "Московский физико-технический институт",
+        "Новосибирский государственный университет",
+        "Московский государственный технический университет",
+        "Уральский федеральный университет",
+        "Казанский федеральный университет",
+        "Томский государственный университет",
+        "Российский университет дружбы народов"
+    ]
+    
     return render_template('create_portfolio.html', 
                          username=session['username'],
-                         profile=profile)
+                         profile=profile,
+                         education_suggestions=education_suggestions)
 
 @app.route('/user/save_portfolio', methods=['POST'])
 def save_portfolio():
@@ -244,6 +264,7 @@ def save_portfolio():
         return redirect('/login')
     
     full_name = request.form['full_name']
+    birth_date = request.form['birth_date']
     email = request.form['email']
     phone = request.form['phone']
     bio = request.form['bio']
@@ -263,15 +284,17 @@ def save_portfolio():
             # Обновляем существующий профиль (но не отмечаем как завершенный - это сделает админ)
             connection.execute('''
                 UPDATE user_profiles 
-                SET full_name = ?, email = ?, phone = ?, bio = ?, skills = ?, experience = ?, education = ?, is_completed = FALSE
+                SET full_name = ?, birth_date = ?, email = ?, phone = ?, 
+                    bio = ?, skills = ?, experience = ?, education = ?, is_completed = FALSE
                 WHERE user_id = ?
-            ''', (full_name, email, phone, bio, skills, experience, education, session['user_id']))
+            ''', (full_name, birth_date, email, phone, bio, skills, experience, education, session['user_id']))
         else:
             # Создаем новый профиль (но не отмечаем как завершенный - это сделает админ)
             connection.execute('''
-                INSERT INTO user_profiles (user_id, full_name, email, phone, bio, skills, experience, education, is_completed)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, FALSE)
-            ''', (session['user_id'], full_name, email, phone, bio, skills, experience, education))
+                INSERT INTO user_profiles (user_id, full_name, birth_date, email, phone, 
+                                          bio, skills, experience, education, is_completed)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
+            ''', (session['user_id'], full_name, birth_date, email, phone, bio, skills, experience, education))
         
         connection.commit()
         connection.close()
@@ -308,10 +331,6 @@ def view_portfolio():
                          username=session['username'],
                          profile=profile)
 
-
-
-from datetime import datetime
-
 @app.route('/user/generate_resume')
 def generate_resume():
     if 'username' not in session:
@@ -336,14 +355,12 @@ def generate_resume():
     return render_template('resume.html', 
                          username=session['username'],
                          profile=profile,
-                         now=datetime.now())  # Добавляем текущую дату
+                         now=datetime.now())
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/login')
-
-
-
 
 if __name__ == '__main__':
     create_tables()
