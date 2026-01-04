@@ -6,24 +6,293 @@
     <title>Мое резюме</title>
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Дополнительные стили для резюме */
+        .resume-fullpage {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .print-controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: flex;
+            gap: 10px;
+        }
+        
+        @media print {
+            .print-controls,
+            .no-print {
+                display: none !important;
+            }
+            
+            .resume-fullpage {
+                background: white !important;
+                padding: 0 !important;
+            }
+            
+            .resume-container {
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                max-width: 100% !important;
+            }
+            
+            body {
+                font-size: 12pt !important;
+                line-height: 1.4 !important;
+            }
+            
+            h1 {
+                font-size: 24pt !important;
+                margin-bottom: 10pt !important;
+            }
+            
+            h3 {
+                font-size: 16pt !important;
+                margin-bottom: 8pt !important;
+            }
+            
+            .contact-info {
+                font-size: 11pt !important;
+            }
+            
+            /* Убираем все декоративные элементы при печати */
+            .resume-section h3 i,
+            .contact-info i {
+                display: none !important;
+            }
+            
+            /* Обеспечиваем разрыв страниц */
+            .page-break {
+                page-break-before: always;
+            }
+        }
+        
+        .resume-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin: 60px auto 40px;
+        }
+        
+        .resume-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #4361ee;
+        }
+        
+        .resume-header h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 15px;
+        }
+        
+        .contact-info i {
+            color: #4361ee;
+            margin-right: 8px;
+        }
+        
+        .resume-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #4361ee;
+        }
+        
+        .resume-section h3 {
+            color: #4361ee;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .resume-item {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        .resume-label {
+            font-weight: 600;
+            color: #495057;
+            margin-right: 8px;
+        }
+        
+        .resume-content {
+            display: inline;
+            color: #333;
+        }
+        
+        /* Для длинного текста */
+        .multi-line {
+            white-space: pre-line;
+            line-height: 1.6;
+        }
+        
+        /* Статус резюме */
+        .resume-status {
+            text-align: center;
+            padding: 10px;
+            background: #e8f4ff;
+            border-radius: 8px;
+            margin-top: 20px;
+            color: #4361ee;
+            font-weight: 600;
+        }
+        
+        /* Навигационные кнопки */
+        .navigation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn-print {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-print:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+        
+        /* Мобильная адаптация */
+        @media (max-width: 768px) {
+            .resume-container {
+                padding: 20px;
+                margin: 80px auto 20px;
+            }
+            
+            .resume-header h1 {
+                font-size: 2rem;
+            }
+            
+            .contact-info {
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+            
+            .print-controls {
+                top: 10px;
+                right: 10px;
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .navigation-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-print, .btn-secondary {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        /* Для печати на А4 */
+        @page {
+            size: A4;
+            margin: 20mm;
+        }
+    </style>
 </head>
 <body class="resume-fullpage">
-    <!-- Кнопка печати -->
-    <button class="btn btn-primary print-btn" onclick="window.print()">
-        <i class="fas fa-print"></i> Печать
-    </button>
+    <!-- Панель управления печатью -->
+    <div class="print-controls no-print">
+        <button class="btn-print" onclick="window.print()">
+            <i class="fas fa-print"></i> Печать
+        </button>
+        <button class="btn-print" onclick="downloadPDF()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+            <i class="fas fa-download"></i> Сохранить как PDF
+        </button>
+    </div>
 
-    <div class="container mt-4 mb-4">
+    <!-- Контейнер резюме -->
+    <div class="container">
         <div class="resume-container">
             <!-- Заголовок резюме -->
             <div class="resume-header">
                 <h1 class="display-4">{{ profile.full_name }}</h1>
                 <div class="contact-info">
                     {% if profile.email %}
-                    <span class="me-3"><i class="fas fa-envelope"></i> {{ profile.email }}</span>
+                    <div>
+                        <i class="fas fa-envelope"></i> 
+                        <span>{{ profile.email }}</span>
+                    </div>
                     {% endif %}
                     {% if profile.phone %}
-                    <span><i class="fas fa-phone"></i> {{ profile.phone }}</span>
+                    <div>
+                        <i class="fas fa-phone"></i> 
+                        <span>{{ profile.phone }}</span>
+                    </div>
+                    {% endif %}
+                    {% if profile.birth_date %}
+                    <div>
+                        <i class="fas fa-birthday-cake"></i>
+                        {% set birth_date = profile.birth_date.split('-') %}
+                        <span>{{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}</span>
+                    </div>
                     {% endif %}
                 </div>
             </div>
@@ -32,26 +301,31 @@
             <div class="resume-section">
                 <h3><i class="fas fa-user"></i> Личная информация</h3>
                 <div class="resume-item">
-                    <span class="resume-label">Имя:</span> {{ profile.full_name }}
+                    <span class="resume-label">Полное имя:</span>
+                    <span class="resume-content">{{ profile.full_name }}</span>
                 </div>
                 
                 {% if profile.birth_date %}
                 <div class="resume-item">
                     <span class="resume-label">Дата рождения:</span>
-                    {% set birth_date = profile.birth_date.split('-') %}
-                    {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
+                    <span class="resume-content">
+                        {% set birth_date = profile.birth_date.split('-') %}
+                        {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
+                    </span>
                 </div>
                 {% endif %}
                 
                 {% if profile.email %}
                 <div class="resume-item">
-                    <span class="resume-label">Email:</span> {{ profile.email }}
+                    <span class="resume-label">Email:</span>
+                    <span class="resume-content">{{ profile.email }}</span>
                 </div>
                 {% endif %}
                 
                 {% if profile.phone %}
                 <div class="resume-item">
-                    <span class="resume-label">Телефон:</span> {{ profile.phone }}
+                    <span class="resume-label">Телефон:</span>
+                    <span class="resume-content">{{ profile.phone }}</span>
                 </div>
                 {% endif %}
             </div>
@@ -60,7 +334,7 @@
             {% if profile.bio %}
             <div class="resume-section">
                 <h3><i class="fas fa-info-circle"></i> О себе</h3>
-                <div class="resume-item">
+                <div class="resume-item multi-line">
                     {{ profile.bio }}
                 </div>
             </div>
@@ -70,8 +344,8 @@
             {% if profile.skills %}
             <div class="resume-section">
                 <h3><i class="fas fa-cogs"></i> Профессиональные навыки</h3>
-                <div class="resume-item">
-                    <span class="resume-label">Я обладаю следующими навыками:</span> {{ profile.skills }}
+                <div class="resume-item multi-line">
+                    {{ profile.skills }}
                 </div>
             </div>
             {% endif %}
@@ -80,8 +354,8 @@
             {% if profile.education %}
             <div class="resume-section">
                 <h3><i class="fas fa-graduation-cap"></i> Образование</h3>
-                <div class="resume-item">
-                    <span class="resume-label">Образовательные учреждения и курсы:</span> {{ profile.education }}
+                <div class="resume-item multi-line">
+                    {{ profile.education }}
                 </div>
             </div>
             {% endif %}
@@ -90,8 +364,8 @@
             {% if profile.experience %}
             <div class="resume-section">
                 <h3><i class="fas fa-briefcase"></i> Опыт работы</h3>
-                <div class="resume-item">
-                    <span class="resume-label">Профессиональный опыт:</span> {{ profile.experience }}
+                <div class="resume-item multi-line">
+                    {{ profile.experience }}
                 </div>
             </div>
             {% endif %}
@@ -100,38 +374,114 @@
             <div class="resume-section">
                 <h3><i class="fas fa-star"></i> Дополнительная информация</h3>
                 <div class="resume-item">
-                    <span class="resume-label">Дата составления резюме:</span> {{ now.strftime('%d.%m.%Y') if now else 'Текущая дата' }}
+                    <span class="resume-label">Дата составления резюме:</span>
+                    <span class="resume-content" id="current-date">{{ now.strftime('%d.%m.%Y') if now else '' }}</span>
                 </div>
                 <div class="resume-item">
-                    <span class="resume-label">Статус:</span> Проверено администратором
+                    <span class="resume-label">Статус:</span>
+                    <span class="resume-content">Проверено администратором ✓</span>
                 </div>
+            </div>
+            
+            <!-- Водяной знак (только при печати) -->
+            <div class="resume-status no-print">
+                <i class="fas fa-shield-alt"></i>
+                Официальное резюме, созданное в системе портфолио
             </div>
         </div>
 
-        <!-- Кнопки навигации -->
-        <div class="text-center mt-4">
-            <a href="/user/view_portfolio" class="btn btn-secondary">← Назад к портфолио</a>
-            <a href="/user" class="btn btn-primary">На главную</a>
+        <!-- Навигационные кнопки (не показывать при печати) -->
+        <div class="navigation-buttons no-print">
+            <button class="btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i> Распечатать резюме
+            </button>
+            <a href="/user/view_portfolio" class="btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к портфолио
+            </a>
+            <a href="/user" class="btn-secondary">
+                <i class="fas fa-home"></i> На главную
+            </a>
         </div>
     </div>
 
-    <!-- Добавляем текущую дату через JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-        // Добавляем текущую дату в резюме
+        // Добавляем текущую дату если её нет
         document.addEventListener('DOMContentLoaded', function() {
-            const now = new Date();
-            const dateString = now.toLocaleDateString('ru-RU');
-            const dateElements = document.querySelectorAll('.resume-item:last-child .resume-label');
-            if (dateElements.length > 0) {
-                const dateItem = document.createElement('div');
-                dateItem.className = 'resume-item';
-                dateItem.innerHTML = '<span class="resume-label">Дата составления резюме:</span> ' + dateString;
-                document.querySelector('.resume-section:last-child').insertBefore(dateItem, document.querySelector('.resume-section:last-child .resume-item:last-child'));
+            const dateElement = document.getElementById('current-date');
+            if (!dateElement.textContent.trim()) {
+                const now = new Date();
+                const dateString = now.toLocaleDateString('ru-RU');
+                dateElement.textContent = dateString;
             }
+            
+            // Скрываем элементы с классом no-print при печати
+            const style = document.createElement('style');
+            style.textContent = `
+                @media print {
+                    .no-print { display: none !important; }
+                    * { -webkit-print-color-adjust: exact !important; }
+                }
+            `;
+            document.head.appendChild(style);
         });
+        
+        // Функция для скачивания PDF
+        function downloadPDF() {
+            const element = document.querySelector('.resume-container');
+            const opt = {
+                margin:       10,
+                filename:     'резюме_{{ profile.full_name.replace(" ", "_") }}.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                },
+                jsPDF:        { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait',
+                    compress: true
+                }
+            };
+            
+            // Показываем сообщение
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание PDF...';
+            btn.disabled = true;
+            
+            // Генерируем PDF
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalHTML;
+                btn.disabled = false;
+            });
+        }
+        
+        // Подсказка перед печатью
+        window.onbeforeprint = function() {
+            // Можно добавить какие-то действия перед печатью
+            console.log('Начало печати резюме...');
+        };
+        
+        window.onafterprint = function() {
+            // Действия после печати
+            console.log('Печать завершена');
+        };
+        
+        // Адаптация для мобильных устройств
+        function checkMobile() {
+            if (window.innerWidth <= 768) {
+                document.body.classList.add('mobile');
+            } else {
+                document.body.classList.remove('mobile');
+            }
+        }
+        
+        window.addEventListener('resize', checkMobile);
+        checkMobile();
     </script>
-
-    <script src="https://kit.fontawesome.com/your-fontawesome-kit.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

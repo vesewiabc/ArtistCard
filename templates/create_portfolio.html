@@ -296,32 +296,32 @@
     </style>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const formElements = document.querySelectorAll('.fade-in');
-            formElements.forEach((el, index) => {
-                setTimeout(() => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                }, index * 100);
+    document.addEventListener('DOMContentLoaded', function() {
+        const formElements = document.querySelectorAll('.fade-in');
+        formElements.forEach((el, index) => {
+            setTimeout(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+        
+        // Фокус на первое поле
+        const firstField = document.getElementById('full_name');
+        if (firstField) {
+            firstField.focus();
+        }
+        
+        // Подтверждение отправки
+        const form = document.getElementById('portfolioForm');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const submitBtn = form.querySelector('.btn-submit');
+                if (submitBtn) {
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
+                    submitBtn.disabled = true;
+                }
             });
-            
-            // Фокус на первое поле
-            const firstField = document.getElementById('full_name');
-            if (firstField) {
-                firstField.focus();
-            }
-            
-            // Подтверждение отправки
-            const form = document.getElementById('portfolioForm');
-            if (form) {
-                form.addEventListener('submit', function() {
-                    const submitBtn = form.querySelector('.btn-submit');
-                    if (submitBtn) {
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
-                        submitBtn.disabled = true;
-                    }
-                });
-            }
+        }
             
             // Обработка подсказок для образования
             const educationInput = document.getElementById('education');
@@ -400,23 +400,43 @@
                 window.addEventListener('resize', positionDropdown);
             }
             
-            // Форматирование даты рождения
-            const birthDateInput = document.getElementById('birth_date');
-            if (birthDateInput) {
-                // Устанавливаем максимальную дату (сегодняшний день)
+            
+            // ИСПРАВЛЕНО: Форматирование даты рождения
+        const birthDateInput = document.getElementById('birth_date');
+        if (birthDateInput) {
+            // Устанавливаем максимальную дату (сегодняшний день) только если поле пустое
+            // Если уже есть значение, не меняем его
+            if (!birthDateInput.value) {
                 const today = new Date();
-                const maxDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate());
-                birthDateInput.max = maxDate.toISOString().split('T')[0];
+                const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()); // 100 лет назад
+                const maxDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate()); // 16 лет назад
                 
-                // Форматирование для отображения
-                birthDateInput.addEventListener('change', function() {
-                    if (this.value) {
-                        const date = new Date(this.value);
-                        const formattedDate = date.toLocaleDateString('ru-RU');
-                        this.setAttribute('data-formatted', formattedDate);
-                    }
-                });
+                birthDateInput.min = minDate.toISOString().split('T')[0];
+                birthDateInput.max = maxDate.toISOString().split('T')[0];
             }
+            
+            // Форматирование для отображения
+            birthDateInput.addEventListener('change', function() {
+                if (this.value) {
+                    const date = new Date(this.value);
+                    const formattedDate = date.toLocaleDateString('ru-RU');
+                    this.setAttribute('data-formatted', formattedDate);
+                }
+            });
+            
+            // Если значение уже есть, конвертируем его в правильный формат для input[type="date"]
+            if (birthDateInput.value) {
+                // Проверяем формат даты (может быть в формате ДД.ММ.ГГГГ или ГГГГ-ММ-ДД)
+                const dateValue = birthDateInput.value;
+                if (dateValue.includes('.')) {
+                    // Формат ДД.ММ.ГГГГ -> конвертируем в ГГГГ-ММ-ДД
+                    const parts = dateValue.split('.');
+                    if (parts.length === 3) {
+                        birthDateInput.value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                    }
+                }
+            }
+        }
         });
     </script>
 </body>

@@ -20,7 +20,7 @@ def create_tables():
     )
     ''')
     
-    # Таблица профилей пользователей
+    
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS user_profiles (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,6 +37,14 @@ def create_tables():
         FOREIGN KEY (user_id) REFERENCES users (id)
     )
     ''')
+    
+    
+    try:
+        cursor.execute("SELECT birth_date FROM user_profiles LIMIT 1")
+    except sqlite3.OperationalError:
+        # Колонки не существует, добавляем её
+        print("Добавляем колонку birth_date в таблицу user_profiles...")
+        cursor.execute('ALTER TABLE user_profiles ADD COLUMN birth_date TEXT')
     
     # Создаем администратора по умолчанию
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
@@ -159,6 +167,18 @@ def edit_user(user_id):
         experience = request.form['experience']
         education = request.form['education']
         
+        if birth_date:
+            try:
+                if '-' in birth_date:
+                    pass
+                elif '.' in birth_date:
+                    parts = birth_date.split('.')
+                    if len(parts) == 3:
+                        birth_date = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+            except Exception as e:
+                print(f"Ошибка обработки даты: {e}")
+                pass
+
         try:
             # Проверяем, существует ли уже профиль
             existing_profile = connection.execute(
@@ -183,6 +203,7 @@ def edit_user(user_id):
             
             connection.commit()
             flash('Профиль пользователя успешно сохранен и опубликован!', 'success')
+
         except Exception as e:
             print(f"Ошибка сохранения профиля: {e}")
             flash('Ошибка при сохранении профиля', 'error')
@@ -190,6 +211,7 @@ def edit_user(user_id):
             connection.close()
         
         return redirect('/admin')
+    
     
     # GET запрос - получаем данные пользователя
     try:
@@ -279,6 +301,23 @@ def save_portfolio():
     experience = request.form['experience']
     education = request.form['education']
     
+    # ИСПРАВЛЕНО: Обработка даты рождения
+    if birth_date:
+        try:
+            # Проверяем формат даты (может быть ДД.ММ.ГГГГ или ГГГГ-ММ-ДД)
+            if '-' in birth_date:
+                # Формат ГГГГ-ММ-ДД - оставляем как есть
+                pass
+            elif '.' in birth_date:
+                # Конвертируем из ДД.ММ.ГГГГ в ГГГГ-ММ-ДД
+                parts = birth_date.split('.')
+                if len(parts) == 3:
+                    birth_date = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+        except Exception as e:
+            print(f"Ошибка обработки даты: {e}")
+            # Если не удалось обработать, оставляем как есть
+            pass
+    
     try:
         connection = get_db_connection()
         
@@ -288,7 +327,7 @@ def save_portfolio():
         ).fetchone()
         
         if existing_profile:
-            # Обновляем существующий профиль (но не отмечаем как завершенный - это сделает админ)
+            # Обновляем существующий профиль
             connection.execute('''
                 UPDATE user_profiles 
                 SET full_name = ?, birth_date = ?, email = ?, phone = ?, 
@@ -296,7 +335,7 @@ def save_portfolio():
                 WHERE user_id = ?
             ''', (full_name, birth_date, email, phone, bio, skills, experience, education, session['user_id']))
         else:
-            # Создаем новый профиль (но не отмечаем как завершенный - это сделает админ)
+            # Создаем новый профиль
             connection.execute('''
                 INSERT INTO user_profiles (user_id, full_name, birth_date, email, phone, 
                                           bio, skills, experience, education, is_completed)
@@ -311,8 +350,21 @@ def save_portfolio():
         
     except Exception as e:
         print(f"Ошибка сохранения портфолио: {e}")
-        return render_template('create_portfolio.html', error="Ошибка при сохранении")
-
+        # Восстанавливаем список учебных заведений для формы
+        education_suggestions = [
+            "Московский государственный университет",
+            "Санкт-Петербургский государственный университет",
+            # ... остальные ...
+        ]
+        return render_template('create_portfolio.html', 
+                             username=session['username'],
+                             profile={'full_name': full_name, 'birth_date': birth_date, 
+                                     'email': email, 'phone': phone, 'bio': bio,
+                                     'skills': skills, 'experience': experience, 
+                                     'education': education},
+                             education_suggestions=education_suggestions,
+                             error=f"Ошибка при сохранении: {str(e)}")
+    
 @app.route('/user/view_portfolio')
 def view_portfolio():
     if 'username' not in session:
