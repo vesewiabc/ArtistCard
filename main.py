@@ -4,7 +4,9 @@ import os
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = '123'
+app.secret_key = os.environ.get('SECRET_KEY', 'fallback-secret-key-for-dev')
+
+
 
 # Таблицы для хранения пользователей и их данных
 def create_tables():
@@ -57,7 +59,15 @@ def create_tables():
     connection.close()
     print("Таблицы созданы успешно")
 
+# Измените путь к базе данных для Render
 def get_db_connection():
+    # На Render используем PostgreSQL если доступно
+    database_url = os.environ.get('DATABASE_URL')
+    if database_url and database_url.startswith('postgresql://'):
+        # Для PostgreSQL потребуется другая конфигурация
+        # Пока оставим SQLite для простоты
+        pass
+    
     conn = sqlite3.connect('users.db')
     conn.row_factory = sqlite3.Row
     return conn
@@ -422,4 +432,5 @@ def logout():
 
 if __name__ == '__main__':
     create_tables()
-    app.run(debug=True, host='0.0.0.0', port=5555)
+    port = int(os.environ.get('PORT', 5555))
+    app.run(debug=True, host='0.0.0.0', port=port)

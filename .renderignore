@@ -1,0 +1,11 @@
+# .renderignore
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+instance/
+backups/
+*.db
+.DS_Store
+*.log

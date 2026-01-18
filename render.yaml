@@ -1,0 +1,23 @@
+# render.yaml
+services:
+  - type: web
+    name: portfolio-system
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+    healthCheckPath: /login
+    autoDeploy: true
+    disk:
+      name: data
+      mountPath: /opt/render/project/src
+      sizeGB: 1
+
+databases:
+  - name: portfolio-db 
+    databaseName: users.db 
+    user: portfolio_user
+    plan: free
+    region: frankfurt  # или другой регион ближе к вам
