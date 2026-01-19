@@ -5,26 +5,617 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мое портфолио</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- В начале <head> после мета-тегов -->
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ... (остальные стили остаются без изменений) ... */
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --accent-color: #4cc9f0;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --border-radius: 10px;
+            --box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        /* Навигация */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 1rem;
+        }
+        
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-size: 1.1rem;
+        }
+        
+        .navbar-brand i {
+            font-size: 1.2rem;
+        }
+        
+        .navbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar-text {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--primary-color);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+        
+        .nav-link:hover {
+            background: var(--light-color);
+            color: var(--secondary-color);
+        }
+        
+        /* Основной контейнер */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        /* Заголовок страницы */
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Карточка портфолио */
+        .portfolio-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            animation: slideUp 0.6s ease-out;
+        }
+        
+        /* Секции портфолио */
+        .info-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .info-section:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        
+        .section-header i {
+            color: var(--primary-color);
+            font-size: 1.3rem;
+        }
+        
+        .section-header h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+        
+        /* Содержимое секций */
+        .info-content {
+            padding-left: 0.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 1.2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        
+        .info-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: white;
+            font-size: 1.1rem;
+        }
+        
+        .info-text {
+            flex-grow: 1;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.3rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .info-text div:not(.info-label) {
+            color: #555;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+        
+        /* Особые стили для контактов */
+        .contact-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.8rem 1rem;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        
+        .contact-item:hover {
+            border-color: var(--primary-color);
+            background: #f8f9ff;
+        }
+        
+        .contact-item i {
+            width: 24px;
+            text-align: center;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .contact-item a {
+            color: var(--dark-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .contact-item a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+        
+        /* Фото пользователя */
+        .user-photo-container {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .user-photo {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            margin: 0 auto;
+        }
+        
+        .photo-placeholder {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            color: white;
+            font-size: 3rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+        
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: 2px solid transparent;
+            font-size: 1rem;
+        }
+        
+        .btn-success-action {
+            background: linear-gradient(135deg, var(--success-color), #20c997);
+            color: white;
+        }
+        
+        .btn-success-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+        
+        .btn-primary-action {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+        
+        .btn-primary-action:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+            color: white;
+        }
+        
+        .btn-secondary-action {
+            background: white;
+            color: var(--dark-color);
+            border-color: #dee2e6;
+        }
+        
+        .btn-secondary-action:hover {
+            background: #f8f9fa;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            color: var(--dark-color);
+        }
+        
+        /* Сообщения */
+        .alert-message {
+            background: white;
+            border-left: 4px solid var(--warning-color);
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: var(--box-shadow);
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        .alert-message i {
+            color: var(--warning-color);
+            font-size: 1.5rem;
+        }
+        
+        .alert-message div {
+            flex-grow: 1;
+        }
+        
+        .alert-message strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--dark-color);
+        }
+        
+        /* Анимации */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Специальные стили для различных типов контента */
+        .multi-line-content {
+            white-space: pre-line;
+            line-height: 1.6;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        
+        .skill-tag {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        /* Статус публикации */
+        .publication-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-left: 1rem;
+        }
+        
+        .status-published {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem auto;
+                padding: 0 0.5rem;
+            }
+            
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .portfolio-card {
+                padding: 1.5rem;
+            }
+            
+            .info-item {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .info-icon {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
+            
+            .contact-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn-action {
+                justify-content: center;
+                text-align: center;
+            }
+            
+            .user-photo,
+            .photo-placeholder {
+                width: 140px;
+                height: 140px;
+            }
+            
+            .navbar .container {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .navbar-nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .portfolio-card {
+                padding: 1rem;
+            }
+            
+            .section-header h3 {
+                font-size: 1.2rem;
+            }
+            
+            .info-text div:not(.info-label) {
+                font-size: 1rem;
+            }
+        }
+        
+        /* Дополнительные стили для лучшей читаемости */
+        .experience-item {
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-color);
+        }
+        
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .experience-company {
+            font-weight: 600;
+            color: var(--dark-color);
+            font-size: 1.1rem;
+        }
+        
+        .experience-period {
+            color: #666;
+            font-size: 0.9rem;
+            background: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+        }
+        
+        .experience-position {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .experience-responsibilities {
+            color: #555;
+            padding-left: 1rem;
+        }
+        
+        .experience-responsibilities li {
+            margin-bottom: 0.3rem;
+        }
+        
+        /* Стили для списка языков */
+        .languages-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .language-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+        
+        .language-name {
+            font-weight: 500;
+        }
+        
+        .language-level {
+            color: var(--primary-color);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
     <!-- Навигация -->
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar">
         <div class="container">
             <a class="navbar-brand" href="/user">
                 <i class="fas fa-arrow-left"></i>
                 <span>Назад в личный кабинет</span>
             </a>
-            <div class="navbar-nav ms-auto">
-                <span class="navbar-text me-3">
+            <div class="navbar-nav">
+                <span class="navbar-text">
                     <i class="fas fa-user-circle me-1"></i> {{ username }}
                 </span>
                 <a class="nav-link" href="/logout">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="d-none d-md-inline">Выйти</span>
                 </a>
             </div>
         </div>
@@ -33,19 +624,32 @@
     <!-- Основной контент -->
     <div class="main-container">
         <!-- Заголовок -->
-        <div class="page-header fade-in">
+        <div class="page-header">
             <h1>Мое портфолио</h1>
             <p>Профессиональное портфолио пользователя</p>
         </div>
 
         {% if profile %}
+        <!-- Фото пользователя -->
+        {% if profile.photo %}
+        <div class="user-photo-container fade-in">
+            <img src="{{ profile.photo }}" alt="{{ profile.full_name }}" class="user-photo">
+        </div>
+        {% else %}
+        <div class="user-photo-container fade-in">
+            <div class="photo-placeholder">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Карточка портфолио -->
-        <div class="portfolio-card fade-in">
+        <div class="portfolio-card">
             <!-- Основная информация -->
             <div class="info-section">
                 <div class="section-header">
                     <i class="fas fa-user-circle"></i>
-                    Основная информация
+                    <h3>Основная информация</h3>
                 </div>
                 <div class="info-content">
                     <div class="info-item">
@@ -53,10 +657,22 @@
                             <i class="fas fa-user"></i>
                         </div>
                         <div class="info-text">
-                            <div class="info-label">Полное имя:</div>
+                            <div class="info-label">Полное имя</div>
                             <div>{{ profile.full_name }}</div>
                         </div>
                     </div>
+                    
+                    {% if profile.job_position %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="info-text">
+                            <div class="info-label">Желаемая должность</div>
+                            <div>{{ profile.job_position }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
                     
                     {% if profile.birth_date %}
                     <div class="info-item">
@@ -64,7 +680,7 @@
                             <i class="fas fa-birthday-cake"></i>
                         </div>
                         <div class="info-text">
-                            <div class="info-label">Дата рождения:</div>
+                            <div class="info-label">Дата рождения</div>
                             <div>
                                 {% set birth_date = profile.birth_date.split('-') %}
                                 {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
@@ -73,27 +689,83 @@
                     </div>
                     {% endif %}
                     
-                    {% if profile.email %}
+                    {% if profile.salary_expectations %}
                     <div class="info-item">
                         <div class="info-icon">
-                            <i class="fas fa-envelope"></i>
+                            <i class="fas fa-money-bill-wave"></i>
                         </div>
                         <div class="info-text">
-                            <div class="info-label">Email:</div>
-                            <div>{{ profile.email }}</div>
+                            <div class="info-label">Ожидания по зарплате</div>
+                            <div>{{ profile.salary_expectations }}</div>
                         </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Контактная информация -->
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-address-book"></i>
+                    <h3>Контактная информация</h3>
+                </div>
+                <div class="info-content contact-info-grid">
+                    {% if profile.email %}
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:{{ profile.email }}">{{ profile.email }}</a>
                     </div>
                     {% endif %}
                     
                     {% if profile.phone %}
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div class="info-text">
-                            <div class="info-label">Телефон:</div>
-                            <div>{{ profile.phone }}</div>
-                        </div>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:{{ profile.phone }}">{{ profile.phone }}</a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.linkedin %}
+                    <div class="contact-item">
+                        <i class="fab fa-linkedin"></i>
+                        <a href="{{ profile.linkedin }}" target="_blank">
+                            {{ profile.linkedin|replace('https://', '')|replace('http://', '') }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.github %}
+                    <div class="contact-item">
+                        <i class="fab fa-github"></i>
+                        <a href="{{ profile.github }}" target="_blank">
+                            {{ profile.github|replace('https://', '')|replace('http://', '') }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.vk %}
+                    <div class="contact-item">
+                        <i class="fab fa-vk"></i>
+                        <a href="{{ profile.vk }}" target="_blank">
+                            {{ profile.vk|replace('https://', '')|replace('http://', '') }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.telegram %}
+                    <div class="contact-item">
+                        <i class="fab fa-telegram"></i>
+                        <a href="https://t.me/{{ profile.telegram|replace('@', '') }}" target="_blank">
+                            {{ profile.telegram }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.portfolio_link %}
+                    <div class="contact-item">
+                        <i class="fas fa-globe"></i>
+                        <a href="{{ profile.portfolio_link }}" target="_blank">
+                            {{ profile.portfolio_link|replace('https://', '')|replace('http://', '') }}
+                        </a>
                     </div>
                     {% endif %}
                 </div>
@@ -104,7 +776,7 @@
             <div class="info-section">
                 <div class="section-header">
                     <i class="fas fa-info-circle"></i>
-                    О себе
+                    <h3>О себе</h3>
                 </div>
                 <div class="info-content">
                     <div class="info-item">
@@ -112,7 +784,7 @@
                             <i class="fas fa-quote-left"></i>
                         </div>
                         <div class="info-text">
-                            {{ profile.bio }}
+                            <div class="multi-line-content">{{ profile.bio }}</div>
                         </div>
                     </div>
                 </div>
@@ -124,7 +796,7 @@
             <div class="info-section">
                 <div class="section-header">
                     <i class="fas fa-cogs"></i>
-                    Навыки
+                    <h3>Навыки</h3>
                 </div>
                 <div class="info-content">
                     <div class="info-item">
@@ -132,8 +804,38 @@
                             <i class="fas fa-tools"></i>
                         </div>
                         <div class="info-text">
-                            {{ profile.skills }}
+                            <div class="skills-list">
+                                {% set skills = profile.skills.split(',') %}
+                                {% for skill in skills %}
+                                {% if skill.strip() %}
+                                <span class="skill-tag">{{ skill.strip() }}</span>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Языки -->
+            {% if profile.languages %}
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-language"></i>
+                    <h3>Знание языков</h3>
+                </div>
+                <div class="info-content">
+                    <div class="languages-list">
+                        {% for line in profile.languages.split('\n') %}
+                        {% if line.strip() %}
+                        {% set parts = line.strip().split('(') %}
+                        <div class="language-item">
+                            <span class="language-name">{{ parts[0].strip() }}</span>
+                            <span class="language-level">{{ parts[1]|replace(')', '') if parts|length > 1 else '' }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -144,7 +846,7 @@
             <div class="info-section">
                 <div class="section-header">
                     <i class="fas fa-graduation-cap"></i>
-                    Образование
+                    <h3>Образование</h3>
                 </div>
                 <div class="info-content">
                     <div class="info-item">
@@ -152,9 +854,44 @@
                             <i class="fas fa-university"></i>
                         </div>
                         <div class="info-text">
-                            {{ profile.education }}
+                            <div class="multi-line-content">{{ profile.education }}</div>
                         </div>
                     </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Курсы и сертификаты -->
+            {% if profile.courses or profile.certificates %}
+            <div class="info-section">
+                <div class="section-header">
+                    <i class="fas fa-award"></i>
+                    <h3>Курсы и сертификаты</h3>
+                </div>
+                <div class="info-content">
+                    {% if profile.courses %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-certificate"></i>
+                        </div>
+                        <div class="info-text">
+                            <div class="info-label">Курсы и тренинги</div>
+                            <div class="multi-line-content">{{ profile.courses }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.certificates %}
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="info-text">
+                            <div class="info-label">Сертификаты</div>
+                            <div class="multi-line-content">{{ profile.certificates }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}
@@ -164,29 +901,71 @@
             <div class="info-section">
                 <div class="section-header">
                     <i class="fas fa-briefcase"></i>
-                    Опыт работы
+                    <h3>Опыт работы</h3>
                 </div>
                 <div class="info-content">
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-chart-line"></i>
+                    {% for exp in profile.experience.split('---') if exp.strip() %}
+                    <div class="experience-item">
+                        {% set lines = exp.strip().split('\n') %}
+                        {% if lines|length > 0 %}
+                        <div class="experience-header">
+                            <div>
+                                <div class="experience-company">
+                                    {{ lines[0].split(' - ')[0] if ' - ' in lines[0] else lines[0] }}
+                                </div>
+                                {% if ' - ' in lines[0] %}
+                                <div class="experience-position">
+                                    {{ lines[0].split(' - ')[1] }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% for line in lines %}
+                            {% if 'Период:' in line %}
+                            <div class="experience-period">{{ line|replace('Период:', '')|trim }}</div>
+                            {% endif %}
+                            {% endfor %}
                         </div>
-                        <div class="info-text">
-                            {{ profile.experience }}
+                        {% for line in lines %}
+                        {% if 'Обязанности:' in line %}
+                        <div class="mt-2">
+                            <div class="experience-responsibilities">
+                                {{ line|replace('Обязанности:', '')|trim }}
+                            </div>
                         </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
                     </div>
+                    {% endfor %}
                 </div>
             </div>
             {% endif %}
+            
+            <!-- Статус публикации -->
+            <div class="info-section" style="background: #f8f9ff; border-radius: 8px; padding: 1.5rem;">
+                <div class="section-header" style="border-bottom: none; margin-bottom: 0;">
+                    <i class="fas fa-shield-alt"></i>
+                    <h3 style="color: var(--success-color);">Статус портфолио</h3>
+                </div>
+                <div class="info-content" style="text-align: center; padding-top: 1rem;">
+                    <div class="publication-status status-published">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Портфолио проверено и опубликовано администратором</span>
+                    </div>
+                    <p class="mt-2" style="color: #666; font-size: 0.9rem;">
+                        Последнее обновление: {{ now.strftime('%d.%m.%Y %H:%M') if now else 'Сегодня' }}
+                    </p>
+                </div>
+            </div>
         </div>
 
         <!-- Кнопки действий -->
-        <div class="action-buttons fade-in">
+        <div class="action-buttons">
             <a href="/user/generate_resume" class="btn-action btn-success-action">
                 <i class="fas fa-file-download"></i>
                 Сформировать резюме
             </a>
-            <a href="/user/create_portfolio" class="btn-action">
+            <a href="/user/create_portfolio" class="btn-action btn-primary-action">
                 <i class="fas fa-edit"></i>
                 Редактировать портфолио
             </a>
@@ -202,12 +981,12 @@
             <i class="fas fa-exclamation-triangle"></i>
             <div>
                 <strong>Портфолио еще не создано</strong><br>
-                Создайте свое первое портфолио, чтобы увидеть его здесь
+                Создайте свое первое портфолио, чтобы увидеть его здесь. После создания портфолио оно будет отправлено на проверку администратору.
             </div>
         </div>
         
         <div class="action-buttons fade-in">
-            <a href="/user/create_portfolio" class="btn-action">
+            <a href="/user/create_portfolio" class="btn-action btn-primary-action">
                 <i class="fas fa-plus-circle"></i>
                 Создать портфолио
             </a>
@@ -221,12 +1000,136 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Анимация элементов
             const fadeElements = document.querySelectorAll('.fade-in');
             fadeElements.forEach((el, index) => {
                 setTimeout(() => {
                     el.style.opacity = '1';
                     el.style.transform = 'translateY(0)';
                 }, index * 100);
+            });
+            
+            // Плавная прокрутка
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+            
+            // Подсветка активной секции при прокрутке
+            const sections = document.querySelectorAll('.info-section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.backgroundColor = 'rgba(67, 97, 238, 0.02)';
+                        setTimeout(() => {
+                            entry.target.style.backgroundColor = '';
+                        }, 1000);
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+            
+            sections.forEach(section => observer.observe(section));
+            
+            // Копирование контактов по клику
+            document.querySelectorAll('.contact-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.tagName !== 'A') {
+                        const link = this.querySelector('a');
+                        if (link) {
+                            const text = link.textContent.trim();
+                            navigator.clipboard.writeText(text).then(() => {
+                                const originalHTML = this.innerHTML;
+                                this.innerHTML = '<i class="fas fa-check"></i> Скопировано!';
+                                this.style.backgroundColor = '#e8f4ff';
+                                
+                                setTimeout(() => {
+                                    this.innerHTML = originalHTML;
+                                    this.style.backgroundColor = '';
+                                }, 2000);
+                            });
+                        }
+                    }
+                });
+            });
+            
+            // Адаптивное меню для мобильных
+            function adaptMenu() {
+                const navbarNav = document.querySelector('.navbar-nav');
+                if (window.innerWidth < 768) {
+                    if (!document.querySelector('.menu-toggle')) {
+                        const menuToggle = document.createElement('button');
+                        menuToggle.className = 'menu-toggle';
+                        menuToggle.innerHTML = '<i class="fas fa-bars"></i>';
+                        menuToggle.style.cssText = `
+                            background: var(--primary-color);
+                            color: white;
+                            border: none;
+                            border-radius: 5px;
+                            padding: 8px 12px;
+                            cursor: pointer;
+                            font-size: 1.2rem;
+                        `;
+                        
+                        document.querySelector('.navbar .container').appendChild(menuToggle);
+                        
+                        menuToggle.addEventListener('click', function() {
+                            navbarNav.style.display = navbarNav.style.display === 'flex' ? 'none' : 'flex';
+                        });
+                        
+                        navbarNav.style.display = 'none';
+                        navbarNav.style.cssText += `
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            right: 0;
+                            background: white;
+                            flex-direction: column;
+                            padding: 1rem;
+                            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                            z-index: 1000;
+                        `;
+                    }
+                } else {
+                    const menuToggle = document.querySelector('.menu-toggle');
+                    if (menuToggle) {
+                        menuToggle.remove();
+                    }
+                    navbarNav.style.display = 'flex';
+                    navbarNav.style.cssText = '';
+                }
+            }
+            
+            adaptMenu();
+            window.addEventListener('resize', adaptMenu);
+            
+            // Добавляем эффект параллакса для фона
+            window.addEventListener('scroll', function() {
+                const scrolled = window.pageYOffset;
+                const background = document.querySelector('body');
+                background.style.backgroundPosition = `0% ${scrolled * 0.5}px`;
+            });
+            
+            // Подсветка навыков при наведении
+            document.querySelectorAll('.skill-tag').forEach(tag => {
+                tag.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    this.style.boxShadow = '0 5px 15px rgba(67, 97, 238, 0.3)';
+                });
+                
+                tag.addEventListener('mouseleave', function() {
+                    this.style.transform = '';
+                    this.style.boxShadow = '';
+                });
             });
         });
     </script>

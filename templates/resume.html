@@ -3,485 +3,809 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мое резюме</title>
-    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <title>Резюме - {{ profile.full_name }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Дополнительные стили для резюме */
-        .resume-fullpage {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+        /* Базовые стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            background: #f5f5f5;
             padding: 20px;
         }
         
+        /* Контролы печати */
         .print-controls {
             position: fixed;
             top: 20px;
             right: 20px;
             z-index: 1000;
             background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.2);
             padding: 15px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
             display: flex;
+            flex-direction: column;
             gap: 10px;
+            width: 180px;
         }
         
+        .print-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .btn-print {
+            background: #2c3e50;
+            color: white;
+        }
+        
+        .btn-pdf {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-back {
+            background: #7f8c8d;
+            color: white;
+        }
+        
+        .print-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Основной контейнер - ОДНА СТРАНИЦА */
+        .resume-container {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            background: white;
+            padding: 20mm;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Заголовок резюме */
+        .resume-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #2c3e50;
+            flex-shrink: 0;
+        }
+        
+        .photo-section {
+            flex-shrink: 0;
+            margin-right: 30px;
+        }
+        
+        .photo-container {
+            width: 100px; /* Уменьшаем фото */
+            height: 100px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 3px solid #2c3e50;
+            background: #f8f9fa;
+        }
+        
+        .photo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .no-photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+        }
+        
+        .header-info {
+            flex-grow: 1;
+        }
+        
+        .header-info h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+        
+        .job-title {
+            font-size: 16px;
+            color: #3498db;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .contact-item i {
+            color: #3498db;
+            width: 16px;
+            text-align: center;
+            font-size: 13px;
+        }
+        
+        /* Основной контент - растягиваем чтобы заполнить страницу */
+        .resume-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Двухколоночный макет */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            flex-grow: 1;
+        }
+        
+        /* Секции резюме */
+        .resume-section {
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 12px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-title i {
+            color: #3498db;
+            font-size: 15px;
+        }
+        
+        /* Опыт работы - компактнее */
+        .experience-item {
+            margin-bottom: 15px;
+        }
+        
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+        
+        .company-info h4 {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+        
+        .position {
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 3px;
+        }
+        
+        .period {
+            color: #666;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        
+        .responsibilities {
+            color: #444;
+            font-size: 12.5px;
+            line-height: 1.4;
+            margin-top: 4px;
+        }
+        
+        /* Навыки */
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 5px;
+        }
+        
+        .skill-tag {
+            background: #e8f4fc;
+            color: #2c3e50;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        /* Языки */
+        .languages-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 8px;
+            margin-top: 5px;
+        }
+        
+        .language-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 3px 0;
+            font-size: 13px;
+        }
+        
+        .language-name {
+            font-weight: 500;
+        }
+        
+        .language-level {
+            color: #3498db;
+            font-size: 12px;
+        }
+        
+        /* Образование */
+        .education-content {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        /* Для многострочного текста */
+        .multi-line {
+            white-space: pre-line;
+            line-height: 1.5;
+            font-size: 13px;
+        }
+        
+        /* Печать */
         @media print {
-            .print-controls,
-            .no-print {
-                display: none !important;
-            }
-            
-            .resume-fullpage {
+            body {
                 background: white !important;
                 padding: 0 !important;
+                margin: 0 !important;
+                font-size: 12pt !important;
+                width: 210mm !important;
+                height: 297mm !important;
+            }
+            
+            .print-controls {
+                display: none !important;
             }
             
             .resume-container {
                 box-shadow: none !important;
                 margin: 0 !important;
-                padding: 20px !important;
-                max-width: 100% !important;
+                padding: 15mm !important;
+                width: 210mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+                page-break-after: avoid !important;
+                page-break-inside: avoid !important;
             }
             
-            body {
-                font-size: 12pt !important;
-                line-height: 1.4 !important;
+            /* Уменьшаем размеры для печати */
+            .resume-header {
+                margin-bottom: 15px;
+                padding-bottom: 15px;
             }
             
-            h1 {
-                font-size: 24pt !important;
-                margin-bottom: 10pt !important;
+            .photo-container, .no-photo {
+                width: 90px;
+                height: 90px;
             }
             
-            h3 {
-                font-size: 16pt !important;
-                margin-bottom: 8pt !important;
+            .header-info h1 {
+                font-size: 22px;
             }
             
-            .contact-info {
-                font-size: 11pt !important;
+            .job-title {
+                font-size: 15px;
             }
             
-            /* Убираем все декоративные элементы при печати */
-            .resume-section h3 i,
-            .contact-info i {
+            .contact-item {
+                font-size: 11px;
+            }
+            
+            .section-title {
+                font-size: 15px;
+                margin-bottom: 10px;
+            }
+            
+            .company-info h4 {
+                font-size: 13px;
+            }
+            
+            .position, .period {
+                font-size: 12px;
+            }
+            
+            .responsibilities, .multi-line, .education-content {
+                font-size: 12px;
+            }
+            
+            .skill-tag {
+                font-size: 11px;
+                padding: 3px 8px;
+            }
+            
+            /* Убираем футер */
+            .resume-footer {
                 display: none !important;
             }
             
-            /* Обеспечиваем разрыв страниц */
-            .page-break {
-                page-break-before: always;
+            /* Настройки страницы */
+            @page {
+                size: A4 portrait;
+                margin: 15mm;
+            }
+            
+            /* Отключаем все ненужное */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                overflow: visible !important;
             }
         }
         
-        .resume-container {
-            background: white;
-            border-radius: 15px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            max-width: 900px;
-            margin: 60px auto 40px;
-        }
-        
-        .resume-header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid #4361ee;
-        }
-        
-        .resume-header h1 {
-            color: #333;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-        
-        .contact-info {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 20px;
-            color: #666;
-            font-size: 1.1rem;
-            margin-top: 15px;
-        }
-        
-        .contact-info i {
-            color: #4361ee;
-            margin-right: 8px;
-        }
-        
-        .resume-section {
-            margin-bottom: 30px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border-left: 4px solid #4361ee;
-        }
-        
-        .resume-section h3 {
-            color: #4361ee;
-            margin-bottom: 15px;
-            font-size: 1.4rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .resume-item {
-            margin-bottom: 12px;
-            line-height: 1.6;
-        }
-        
-        .resume-label {
-            font-weight: 600;
-            color: #495057;
-            margin-right: 8px;
-        }
-        
-        .resume-content {
-            display: inline;
-            color: #333;
-        }
-        
-        /* Для длинного текста */
-        .multi-line {
-            white-space: pre-line;
-            line-height: 1.6;
-        }
-        
-        /* Статус резюме */
-        .resume-status {
-            text-align: center;
-            padding: 10px;
-            background: #e8f4ff;
-            border-radius: 8px;
-            margin-top: 20px;
-            color: #4361ee;
-            font-weight: 600;
-        }
-        
-        /* Навигационные кнопки */
-        .navigation-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 40px;
-            padding: 20px;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .btn-print {
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .btn-print:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-            color: white;
-            text-decoration: none;
-            transform: translateY(-2px);
-        }
-        
-        /* Мобильная адаптация */
-        @media (max-width: 768px) {
+        /* Адаптивность */
+        @media (max-width: 1200px) {
             .resume-container {
-                padding: 20px;
-                margin: 80px auto 20px;
+                width: 100%;
+                padding: 15mm;
             }
             
-            .resume-header h1 {
-                font-size: 2rem;
+            .two-columns {
+                grid-template-columns: 1fr;
+                gap: 20px;
             }
-            
-            .contact-info {
-                flex-direction: column;
-                gap: 10px;
-                align-items: center;
-            }
-            
-            .print-controls {
-                top: 10px;
-                right: 10px;
-                flex-direction: column;
+        }
+        
+        @media (max-width: 768px) {
+            body {
                 padding: 10px;
             }
             
-            .navigation-buttons {
-                flex-direction: column;
-                align-items: center;
+            .print-controls {
+                position: static;
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto 20px;
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
             }
             
-            .btn-print, .btn-secondary {
-                width: 100%;
-                justify-content: center;
+            .print-btn {
+                width: auto;
+                min-width: 140px;
+            }
+            
+            .resume-container {
+                padding: 10mm;
+                margin-top: 0;
+            }
+            
+            .resume-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .photo-section {
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+            
+            .contact-info {
+                grid-template-columns: 1fr;
+                justify-items: center;
             }
         }
         
-        /* Для печати на А4 */
-        @page {
-            size: A4;
-            margin: 20mm;
+        /* Утилитные классы */
+        .mb-1 { margin-bottom: 4px; }
+        .mb-2 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 12px; }
+        .mt-1 { margin-top: 4px; }
+        .mt-2 { margin-top: 8px; }
+        .mt-3 { margin-top: 12px; }
+        
+        .text-muted {
+            color: #666;
         }
     </style>
 </head>
-<body class="resume-fullpage">
-    <!-- Панель управления печатью -->
+<body>
+    <!-- Панель управления -->
     <div class="print-controls no-print">
-        <button class="btn-print" onclick="window.print()">
-            <i class="fas fa-print"></i> Печать
+        <button class="print-btn btn-print" onclick="printResume()">
+            <i class="fas fa-print"></i>
+            Печать
         </button>
-        <button class="btn-print" onclick="downloadPDF()" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-            <i class="fas fa-download"></i> Сохранить как PDF
+        <button class="print-btn btn-pdf" onclick="downloadPDF()">
+            <i class="fas fa-download"></i>
+            Скачать PDF
+        </button>
+        <button class="print-btn btn-back" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i>
+            Назад
         </button>
     </div>
 
-    <!-- Контейнер резюме -->
-    <div class="container">
-        <div class="resume-container">
-            <!-- Заголовок резюме -->
-            <div class="resume-header">
-                <h1 class="display-4">{{ profile.full_name }}</h1>
+    <!-- Основное резюме -->
+    <div class="resume-container">
+        <!-- Заголовок с фото -->
+        <div class="resume-header">
+            <div class="photo-section">
+                {% if profile.photo %}
+                <div class="photo-container">
+                    <img src="{{ profile.photo }}" alt="{{ profile.full_name }}">
+                </div>
+                {% else %}
+                <div class="no-photo">
+                    <i class="fas fa-user"></i>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="header-info">
+                <h1>{{ profile.full_name }}</h1>
+                
+                {% if profile.job_position %}
+                <div class="job-title">{{ profile.job_position }}</div>
+                {% endif %}
+                
                 <div class="contact-info">
                     {% if profile.email %}
-                    <div>
-                        <i class="fas fa-envelope"></i> 
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
                         <span>{{ profile.email }}</span>
                     </div>
                     {% endif %}
+                    
                     {% if profile.phone %}
-                    <div>
-                        <i class="fas fa-phone"></i> 
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
                         <span>{{ profile.phone }}</span>
                     </div>
                     {% endif %}
+                    
                     {% if profile.birth_date %}
-                    <div>
+                    <div class="contact-item">
                         <i class="fas fa-birthday-cake"></i>
-                        {% set birth_date = profile.birth_date.split('-') %}
-                        <span>{{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}</span>
+                        <span>
+                            {% set birth_date = profile.birth_date.split('-') %}
+                            {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
+                        </span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.linkedin %}
+                    <div class="contact-item">
+                        <i class="fab fa-linkedin"></i>
+                        <span>{{ profile.linkedin|replace('https://', '')|replace('http://', '') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.github %}
+                    <div class="contact-item">
+                        <i class="fab fa-github"></i>
+                        <span>{{ profile.github|replace('https://', '')|replace('http://', '') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.vk %}
+                    <div class="contact-item">
+                        <i class="fab fa-vk"></i>
+                        <span>{{ profile.vk|replace('https://', '')|replace('http://', '') }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.telegram %}
+                    <div class="contact-item">
+                        <i class="fab fa-telegram"></i>
+                        <span>{{ profile.telegram|replace('@', '')|replace('https://t.me/', '') }}</span>
                     </div>
                     {% endif %}
                 </div>
             </div>
-
-            <!-- Основная информация -->
-            <div class="resume-section">
-                <h3><i class="fas fa-user"></i> Личная информация</h3>
-                <div class="resume-item">
-                    <span class="resume-label">Полное имя:</span>
-                    <span class="resume-content">{{ profile.full_name }}</span>
-                </div>
-                
-                {% if profile.birth_date %}
-                <div class="resume-item">
-                    <span class="resume-label">Дата рождения:</span>
-                    <span class="resume-content">
-                        {% set birth_date = profile.birth_date.split('-') %}
-                        {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
-                    </span>
-                </div>
-                {% endif %}
-                
-                {% if profile.email %}
-                <div class="resume-item">
-                    <span class="resume-label">Email:</span>
-                    <span class="resume-content">{{ profile.email }}</span>
-                </div>
-                {% endif %}
-                
-                {% if profile.phone %}
-                <div class="resume-item">
-                    <span class="resume-label">Телефон:</span>
-                    <span class="resume-content">{{ profile.phone }}</span>
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- О себе -->
-            {% if profile.bio %}
-            <div class="resume-section">
-                <h3><i class="fas fa-info-circle"></i> О себе</h3>
-                <div class="resume-item multi-line">
-                    {{ profile.bio }}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Навыки -->
-            {% if profile.skills %}
-            <div class="resume-section">
-                <h3><i class="fas fa-cogs"></i> Профессиональные навыки</h3>
-                <div class="resume-item multi-line">
-                    {{ profile.skills }}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Образование -->
-            {% if profile.education %}
-            <div class="resume-section">
-                <h3><i class="fas fa-graduation-cap"></i> Образование</h3>
-                <div class="resume-item multi-line">
-                    {{ profile.education }}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Опыт работы -->
-            {% if profile.experience %}
-            <div class="resume-section">
-                <h3><i class="fas fa-briefcase"></i> Опыт работы</h3>
-                <div class="resume-item multi-line">
-                    {{ profile.experience }}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Дополнительная информация -->
-            <div class="resume-section">
-                <h3><i class="fas fa-star"></i> Дополнительная информация</h3>
-                <div class="resume-item">
-                    <span class="resume-label">Дата составления резюме:</span>
-                    <span class="resume-content" id="current-date">{{ now.strftime('%d.%m.%Y') if now else '' }}</span>
-                </div>
-                <div class="resume-item">
-                    <span class="resume-label">Статус:</span>
-                    <span class="resume-content">Проверено администратором ✓</span>
-                </div>
-            </div>
-            
-            <!-- Водяной знак (только при печати) -->
-            <div class="resume-status no-print">
-                <i class="fas fa-shield-alt"></i>
-                Официальное резюме, созданное в системе портфолио
-            </div>
         </div>
 
-        <!-- Навигационные кнопки (не показывать при печати) -->
-        <div class="navigation-buttons no-print">
-            <button class="btn-print" onclick="window.print()">
-                <i class="fas fa-print"></i> Распечатать резюме
-            </button>
-            <a href="/user/view_portfolio" class="btn-secondary">
-                <i class="fas fa-arrow-left"></i> Назад к портфолио
-            </a>
-            <a href="/user" class="btn-secondary">
-                <i class="fas fa-home"></i> На главную
-            </a>
+        <!-- Основной контент -->
+        <div class="resume-content">
+            <div class="two-columns">
+                <!-- Левая колонка -->
+                <div>
+                    <!-- О себе -->
+                    {% if profile.bio %}
+                    <div class="resume-section">
+                        <div class="section-title">
+                            <i class="fas fa-user"></i>
+                            О себе
+                        </div>
+                        <div class="multi-line">{{ profile.bio }}</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Навыки -->
+                    {% if profile.skills %}
+                    <div class="resume-section">
+                        <div class="section-title">
+                            <i class="fas fa-cogs"></i>
+                            Навыки
+                        </div>
+                        <div class="skills-list">
+                            {% set skills = profile.skills.split(',') %}
+                            {% for skill in skills %}
+                            {% if skill.strip() %}
+                            <span class="skill-tag">{{ skill.strip() }}</span>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Языки -->
+                    {% if profile.languages %}
+                    <div class="resume-section">
+                        <div class="section-title">
+                            <i class="fas fa-language"></i>
+                            Языки
+                        </div>
+                        <div class="languages-list">
+                            {% for line in profile.languages.split('\n') %}
+                            {% if line.strip() %}
+                            {% set parts = line.strip().split('(') %}
+                            <div class="language-item">
+                                <span class="language-name">{{ parts[0].strip() }}</span>
+                                <span class="language-level">{{ parts[1]|replace(')', '') if parts|length > 1 else '' }}</span>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Курсы и сертификаты -->
+                    {% if profile.courses or profile.certificates %}
+                    <div class="resume-section">
+                        <div class="section-title">
+                            <i class="fas fa-award"></i>
+                            Курсы и сертификаты
+                        </div>
+                        {% if profile.courses %}
+                        <div class="mb-2">
+                            <div class="multi-line">{{ profile.courses }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if profile.certificates %}
+                        <div class="multi-line">{{ profile.certificates }}</div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Правая колонка -->
+                <div>
+                    <!-- Опыт работы -->
+                    {% if profile.experience %}
+                    <div class="resume-section">
+                        <div class="section-title">
+                            <i class="fas fa-briefcase"></i>
+                            Опыт работы
+                        </div>
+                        {% for exp in profile.experience.split('---') if exp.strip() %}
+                        <div class="experience-item">
+                            {% set lines = exp.strip().split('\n') %}
+                            {% if lines|length > 0 %}
+                            <div class="experience-header">
+                                <div class="company-info">
+                                    {% set first_line = lines[0] %}
+                                    {% if ' - ' in first_line %}
+                                    <h4>{{ first_line.split(' - ')[0] }}</h4>
+                                    <div class="position">{{ first_line.split(' - ')[1] }}</div>
+                                    {% else %}
+                                    <h4>{{ first_line }}</h4>
+                                    {% endif %}
+                                </div>
+                                {% for line in lines %}
+                                {% if 'Период:' in line %}
+                                <div class="period">{{ line|replace('Период:', '')|trim }}</div>
+                                {% endif %}
+                                {% endfor %}
+                            </div>
+                            {% for line in lines %}
+                            {% if 'Обязанности:' in line %}
+                            <div class="responsibilities mt-1">
+                                {{ line|replace('Обязанности:', '')|trim }}
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Образование -->
+                    {% if profile.education %}
+                    <div class="resume-section">
+                        <div class="section-title">
+                            <i class="fas fa-graduation-cap"></i>
+                            Образование
+                        </div>
+                        <div class="education-content multi-line">{{ profile.education }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
-        // Добавляем текущую дату если её нет
-        document.addEventListener('DOMContentLoaded', function() {
-            const dateElement = document.getElementById('current-date');
-            if (!dateElement.textContent.trim()) {
-                const now = new Date();
-                const dateString = now.toLocaleDateString('ru-RU');
-                dateElement.textContent = dateString;
-            }
+        // Функция для печати
+        function printResume() {
+            // Сохраняем оригинальные стили
+            const originalStyles = {
+                fontSize: document.body.style.fontSize,
+                padding: document.body.style.padding,
+                margin: document.body.style.margin
+            };
             
-            // Скрываем элементы с классом no-print при печати
-            const style = document.createElement('style');
-            style.textContent = `
-                @media print {
-                    .no-print { display: none !important; }
-                    * { -webkit-print-color-adjust: exact !important; }
-                }
-            `;
-            document.head.appendChild(style);
-        });
+            // Применяем стили для печати
+            document.body.style.fontSize = '12pt';
+            document.body.style.padding = '0';
+            document.body.style.margin = '0';
+            
+            // Скроллим наверх
+            window.scrollTo(0, 0);
+            
+            // Ждем немного и печатаем
+            setTimeout(() => {
+                window.print();
+                
+                // Восстанавливаем стили
+                setTimeout(() => {
+                    document.body.style.fontSize = originalStyles.fontSize;
+                    document.body.style.padding = originalStyles.padding;
+                    document.body.style.margin = originalStyles.margin;
+                }, 100);
+            }, 100);
+        }
         
         // Функция для скачивания PDF
         function downloadPDF() {
             const element = document.querySelector('.resume-container');
-            const opt = {
-                margin:       10,
-                filename:     'резюме_{{ profile.full_name.replace(" ", "_") }}.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { 
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
-                    backgroundColor: '#ffffff'
-                },
-                jsPDF:        { 
-                    unit: 'mm', 
-                    format: 'a4', 
-                    orientation: 'portrait',
-                    compress: true
-                }
-            };
             
-            // Показываем сообщение
             const btn = event.target.closest('button');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание PDF...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание...';
             btn.disabled = true;
             
-            // Генерируем PDF
-            html2pdf().set(opt).from(element).save().then(() => {
-                btn.innerHTML = originalHTML;
-                btn.disabled = false;
-            });
+            window.scrollTo(0, 0);
+            
+            setTimeout(() => {
+                const opt = {
+                    margin: [10, 10, 10, 10],
+                    filename: 'резюме_{{ profile.full_name|replace(" ", "_") }}.pdf',
+                    image: { 
+                        type: 'jpeg', 
+                        quality: 0.95 
+                    },
+                    html2canvas: { 
+                        scale: 2,
+                        useCORS: true,
+                        logging: false,
+                        backgroundColor: '#ffffff',
+                        windowWidth: 794,
+                        windowHeight: 1123,
+                        scrollX: 0,
+                        scrollY: 0
+                    },
+                    jsPDF: { 
+                        unit: 'mm', 
+                        format: 'a4', 
+                        orientation: 'portrait',
+                        compress: true
+                    }
+                };
+                
+                html2pdf().set(opt).from(element).save().then(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                }).catch(error => {
+                    console.error('Ошибка:', error);
+                    btn.innerHTML = originalHTML;
+                    btn.disabled = false;
+                    alert('Ошибка при создании PDF');
+                });
+            }, 200);
         }
         
-        // Подсказка перед печатью
-        window.onbeforeprint = function() {
-            // Можно добавить какие-то действия перед печатью
-            console.log('Начало печати резюме...');
-        };
-        
-        window.onafterprint = function() {
-            // Действия после печати
-            console.log('Печать завершена');
-        };
-        
-        // Адаптация для мобильных устройств
-        function checkMobile() {
-            if (window.innerWidth <= 768) {
-                document.body.classList.add('mobile');
-            } else {
-                document.body.classList.remove('mobile');
+        // Автоматическая подгонка под одну страницу
+        document.addEventListener('DOMContentLoaded', function() {
+            // Функция для проверки и корректировки высоты
+            function adjustForSinglePage() {
+                const container = document.querySelector('.resume-container');
+                const content = document.querySelector('.resume-content');
+                
+                // Получаем высоту контейнера и содержимого
+                const containerHeight = container.offsetHeight;
+                const contentHeight = content.offsetHeight;
+                
+                // Если контент слишком длинный, уменьшаем шрифты
+                if (contentHeight > 1800) { // Примерный лимит для одной страницы
+                    const scaleFactor = 1800 / contentHeight;
+                    
+                    // Уменьшаем размеры шрифтов
+                    document.querySelectorAll('.resume-content *').forEach(el => {
+                        const style = window.getComputedStyle(el);
+                        const fontSize = parseFloat(style.fontSize);
+                        if (fontSize > 10) { // Минимальный размер
+                            el.style.fontSize = (fontSize * 0.95) + 'px';
+                        }
+                    });
+                    
+                    // Уменьшаем отступы
+                    document.querySelectorAll('.resume-section').forEach(el => {
+                        el.style.marginBottom = '15px';
+                    });
+                    
+                    document.querySelectorAll('.experience-item').forEach(el => {
+                        el.style.marginBottom = '12px';
+                    });
+                }
             }
-        }
-        
-        window.addEventListener('resize', checkMobile);
-        checkMobile();
+            
+            // Проверяем после загрузки
+            setTimeout(adjustForSinglePage, 500);
+            
+            // И при изменении размера окна
+            window.addEventListener('resize', adjustForSinglePage);
+        });
     </script>
 </body>
 </html>

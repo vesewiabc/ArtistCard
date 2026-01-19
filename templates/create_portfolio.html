@@ -7,9 +7,99 @@
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Добавляем стили для загрузки фото */
+        .photo-upload {
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .photo-upload:hover {
+            border-color: #4361ee;
+            background: #f8f9fa;
+        }
+        
+        .photo-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto;
+            display: block;
+            border: 3px solid #4361ee;
+        }
+        
+        .photo-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 3rem;
+            color: #adb5bd;
+        }
+        
+        /* Стили для опыта работы */
+        .experience-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4361ee;
+        }
+        
+        .add-experience-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            color: #6c757d;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-experience-btn:hover {
+            background: #e9ecef;
+            border-color: #4361ee;
+            color: #4361ee;
+        }
+        
+        .remove-experience {
+            color: #dc3545;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .remove-experience:hover {
+            color: #c82333;
+        }
+        
+        /* Стили для языков */
+        .language-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* Адаптация для мобильных */
+        @media (max-width: 768px) {
+            .photo-preview, .photo-placeholder {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
 </head>
 <body class="form-fullpage">
-    <!-- Навигация -->
     <nav class="navbar">
         <div class="container">
             <a class="navbar-brand" href="/user">
@@ -27,16 +117,12 @@
         </div>
     </nav>
 
-    <!-- Основной контент -->
-        <!-- Контент на весь экран по центру -->
     <div class="form-container">
-        <!-- Заголовок страницы -->
         <div class="page-header fade-in">
-            <h1>Создание портфолио</h1>
-            <p class="lead">Заполните информацию о себе для создания профессионального портфолио</p>
+            <h1>Создание профессионального портфолио</h1>
+            <p class="lead">Заполните информацию о себе для создания профессионального резюме</p>
         </div>
 
-        <!-- Сообщения об ошибках -->
         {% if error %}
         <div class="error-message fade-in">
             <i class="fas fa-exclamation-circle"></i>
@@ -44,9 +130,54 @@
         </div>
         {% endif %}
 
-        <!-- Основная форма -->
         <div class="form-card fade-in">
-            <form method="POST" action="/user/save_portfolio" id="portfolioForm">
+            <form method="POST" action="/user/save_portfolio" id="portfolioForm" enctype="multipart/form-data">
+                <!-- Фотография -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-camera"></i>
+                        Фотография
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4 text-center">
+                            <div id="photoPreview">
+                                {% if profile and profile.photo %}
+                                <img src="{{ profile.photo }}" alt="Фото" class="photo-preview">
+                                {% else %}
+                                <div class="photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-image"></i>
+                                    Загрузите фотографию
+                                </label>
+                                <div class="photo-upload" onclick="document.getElementById('photo').click()">
+                                    <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #4361ee;"></i>
+                                    <p class="mb-1">Нажмите для загрузки фотографии</p>
+                                    <p class="text-muted small">Рекомендуемый размер: 400x400px, формат JPG или PNG</p>
+                                </div>
+                                <input type="file" 
+                                       class="form-control d-none" 
+                                       id="photo" 
+                                       name="photo" 
+                                       accept="image/*"
+                                       onchange="previewPhoto(event)">
+                                <input type="hidden" id="photo_data" name="photo_data">
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle"></i>
+                                    Фотография сделает ваше резюме более персональным
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Основная информация -->
                 <div class="form-section">
                     <div class="section-header">
@@ -67,7 +198,7 @@
                                        name="full_name" 
                                        value="{{ profile.full_name if profile else '' }}" 
                                        required
-                                       placeholder="Введите ваше полное имя">
+                                       placeholder="Иванов Иван Иванович">
                             </div>
                         </div>
                         
@@ -83,10 +214,6 @@
                                        name="birth_date" 
                                        value="{{ profile.birth_date if profile else '' }}" 
                                        required>
-                                <div class="form-text">
-                                    <i class="fas fa-info-circle"></i>
-                                    Формат: ДД.ММ.ГГГГ
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -119,10 +246,87 @@
                                        id="phone" 
                                        name="phone" 
                                        value="{{ profile.phone if profile else '' }}"
-                                       placeholder="+7 (XXX) XXX-XX-XX">
+                                       placeholder="+7 (999) 123-45-67">
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-briefcase"></i>
+                                    Желаемая должность
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="job_position" 
+                                       name="job_position" 
+                                       value="{{ profile.job_position if profile else '' }}"
+                                       placeholder="Frontend Developer">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    Ожидания по зарплате
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="salary_expectations" 
+                                       name="salary_expectations" 
+                                       value="{{ profile.salary_expectations if profile else '' }}"
+                                       placeholder="от 100 000 руб.">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Опыт работы (динамическое добавление) -->
+                <div class="form-section">
+                    <div class="section-header">
+                        <i class="fas fa-briefcase"></i>
+                        Опыт работы
+                    </div>
+                    
+                    <div id="experienceContainer">
+                        <!-- Опыт работы будет добавляться динамически -->
+                        <div class="experience-item">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Название компании</label>
+                                    <input type="text" class="form-control" name="company[]" placeholder="ООО 'Компания'">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Должность</label>
+                                    <input type="text" class="form-control" name="position[]" placeholder="Frontend Developer">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Дата начала</label>
+                                    <input type="month" class="form-control" name="start_date[]">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Дата окончания</label>
+                                    <input type="month" class="form-control" name="end_date[]" placeholder="По настоящее время">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label class="form-label">Обязанности и достижения</label>
+                                    <textarea class="form-control" name="responsibilities[]" rows="3" placeholder="Опишите ваши обязанности и достижения..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="add-experience-btn" onclick="addExperience()">
+                        <i class="fas fa-plus-circle me-2"></i>
+                        Добавить место работы
+                    </button>
                 </div>
 
                 <!-- Образование -->
@@ -135,36 +339,42 @@
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-university"></i>
-                            Образовательные учреждения и курсы
+                            Учебные заведения
                         </label>
-                        <div class="input-group mb-2">
-                            <input type="text" 
-                                  class="form-control" 
+                        <textarea class="form-control" 
                                   id="education" 
                                   name="education" 
-                                  value="{{ profile.education if profile else '' }}"
-                                  placeholder="Начните вводить название учебного заведения...">
-                            <button class="btn btn-outline-secondary" type="button" id="educationSuggestBtn">
-                                <i class="fas fa-list"></i>
-                            </button>
+                                  rows="4"
+                                  placeholder="ВУЗ, специальность, год окончания...">{{ profile.education if profile else '' }}</textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-certificate"></i>
+                                    Курсы и тренинги
+                                </label>
+                                <textarea class="form-control" 
+                                          id="courses" 
+                                          name="courses" 
+                                          rows="3"
+                                          placeholder="Пройденные курсы...">{{ profile.courses if profile else '' }}</textarea>
+                            </div>
                         </div>
                         
-                        <!-- Выпадающий список с подсказками -->
-                        <div class="suggestions-dropdown" id="educationSuggestions" style="display: none;">
-                            <div class="suggestion-header">
-                                <small class="text-muted">Популярные учебные заведения:</small>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-award"></i>
+                                    Сертификаты
+                                </label>
+                                <textarea class="form-control" 
+                                          id="certificates" 
+                                          name="certificates" 
+                                          rows="3"
+                                          placeholder="Полученные сертификаты...">{{ profile.certificates if profile else '' }}</textarea>
                             </div>
-                            {% for suggestion in education_suggestions %}
-                            <div class="suggestion-item" data-value="{{ suggestion }}">
-                                <i class="fas fa-university me-2"></i>
-                                {{ suggestion }}
-                            </div>
-                            {% endfor %}
-                        </div>
-                        
-                        <div class="form-text">
-                            <i class="fas fa-info-circle"></i>
-                            Укажите учебные заведения, курсы повышения квалификации, сертификаты
                         </div>
                     </div>
                 </div>
@@ -179,45 +389,151 @@
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-tools"></i>
-                            Ваши навыки и умения
+                            Профессиональные навыки
                         </label>
                         <textarea class="form-control" 
                                   id="skills" 
                                   name="skills" 
                                   rows="4"
-                                  placeholder="Опишите ваши профессиональные навыки, умения, технологии...">{{ profile.skills if profile else '' }}</textarea>
+                                  placeholder="HTML, CSS, JavaScript, React, Node.js...">{{ profile.skills if profile else '' }}</textarea>
                         <div class="form-text">
                             <i class="fas fa-info-circle"></i>
-                            Перечислите ваши ключевые навыки через запятую
+                            Перечислите навыки через запятую
                         </div>
                     </div>
                 </div>
 
-                <!-- Опыт работы -->
+                <!-- Языки -->
                 <div class="form-section">
                     <div class="section-header">
-                        <i class="fas fa-briefcase"></i>
-                        Опыт работы
+                        <i class="fas fa-language"></i>
+                        Знание языков
                     </div>
                     
-                    <div class="form-group">
-                        <label class="form-label">
-                            <i class="fas fa-chart-line"></i>
-                            Профессиональный опыт
-                        </label>
-                        <textarea class="form-control" 
-                                  id="experience" 
-                                  name="experience" 
-                                  rows="4"
-                                  placeholder="Опишите ваш профессиональный опыт, должности, проекты...">{{ profile.experience if profile else '' }}</textarea>
-                        <div class="form-text">
-                            <i class="fas fa-info-circle"></i>
-                            Укажите места работы, должности, основные достижения
+                    <div id="languagesContainer">
+                        <div class="language-item">
+                            <select class="form-control" name="language[]" style="flex: 2;">
+                                <option value="">Выберите язык</option>
+                                <option value="Русский">Русский</option>
+                                <option value="Английский">Английский</option>
+                                <option value="Немецкий">Немецкий</option>
+                                <option value="Французский">Французский</option>
+                            </select>
+                            <select class="form-control" name="language_level[]" style="flex: 1;">
+                                <option value="">Уровень</option>
+                                <option value="A1">A1</option>
+                                <option value="A2">A2</option>
+                                <option value="B1">B1</option>
+                                <option value="B2">B2</option>
+                                <option value="C1">C1</option>
+                                <option value="C2">C2</option>
+                                <option value="Носитель">Носитель</option>
+                            </select>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="removeLanguage(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
                     </div>
+                    
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addLanguage()">
+                        <i class="fas fa-plus me-1"></i> Добавить язык
+                    </button>
                 </div>
 
-                <!-- Биография -->
+                <div class="form-section">
+    <div class="section-header">
+        <i class="fas fa-link"></i>
+        Контакты и ссылки
+    </div>
+    
+    <!-- Оставляем только один блок для GitHub, LinkedIn, VK, Telegram -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fab fa-github"></i>
+                    GitHub
+                </label>
+                <input type="url" 
+                       class="form-control" 
+                       id="github" 
+                       name="github" 
+                       value="{{ profile.github if profile else '' }}"
+                       placeholder="https://github.com/username">
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fab fa-linkedin"></i>
+                    LinkedIn
+                </label>
+                <input type="url" 
+                       class="form-control" 
+                       id="linkedin" 
+                       name="linkedin" 
+                       value="{{ profile.linkedin if profile else '' }}"
+                       placeholder="https://linkedin.com/in/username">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Добавляем ВК и Telegram -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fab fa-vk"></i>
+                    ВКонтакте
+                </label>
+                <input type="url" 
+                       class="form-control" 
+                       id="vk" 
+                       name="vk" 
+                       value="{{ profile.vk if profile else '' }}"
+                       placeholder="https://vk.com/username">
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fab fa-telegram"></i>
+                    Telegram
+                </label>
+                <input type="text" 
+                       class="form-control" 
+                       id="telegram" 
+                       name="telegram" 
+                       value="{{ profile.telegram if profile else '' }}"
+                       placeholder="@username или https://t.me/username">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Веб-сайт -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-globe"></i>
+                    Веб-сайт / Портфолио
+                </label>
+                <input type="url" 
+                       class="form-control" 
+                       id="portfolio_link" 
+                       name="portfolio_link" 
+                       value="{{ profile.portfolio_link if profile else '' }}"
+                       placeholder="https://myportfolio.com">
+            </div>
+        </div>
+    </div>
+
+                        
+
+
+            <!-- О себе -->
                 <div class="form-section">
                     <div class="section-header">
                         <i class="fas fa-info-circle"></i>
@@ -227,17 +543,13 @@
                     <div class="form-group">
                         <label class="form-label">
                             <i class="fas fa-user-edit"></i>
-                            Расскажите о себе
+                            Личные качества и цели
                         </label>
                         <textarea class="form-control" 
                                   id="bio" 
                                   name="bio" 
                                   rows="4"
-                                  placeholder="Расскажите о себе, ваших интересах, целях, личных качествах...">{{ profile.bio if profile else '' }}</textarea>
-                        <div class="form-text">
-                            <i class="fas fa-info-circle"></i>
-                            Опишите ваши личные качества, интересы, карьерные цели
-                        </div>
+                                  placeholder="Расскажите о своих сильных сторонах, профессиональных целях...">{{ profile.bio if profile else '' }}</textarea>
                     </div>
                 </div>
 
@@ -253,190 +565,130 @@
                     </a>
                 </div>
             </form>
-        </div>
-    </div>
-
-    <style>
-        /* Стили для выпадающего списка подсказок */
-        .suggestions-dropdown {
-            position: absolute;
-            z-index: 1000;
-            background: white;
-            border: 1px solid #dee2e6;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            max-height: 200px;
-            overflow-y: auto;
-            width: calc(100% - 30px);
-            margin-top: -10px;
-        }
         
-        .suggestion-header {
-            padding: 8px 15px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            font-weight: 600;
-        }
-        
-        .suggestion-item {
-            padding: 10px 15px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border-bottom: 1px solid #f8f9fa;
-        }
-        
-        .suggestion-item:hover {
-            background: #4361ee;
-            color: white;
-        }
-        
-        .suggestion-item:last-child {
-            border-bottom: none;
-        }
-    </style>
+    
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const formElements = document.querySelectorAll('.fade-in');
-        formElements.forEach((el, index) => {
-            setTimeout(() => {
-                el.style.opacity = '1';
-                el.style.transform = 'translateY(0)';
-            }, index * 100);
-        });
+        // Предпросмотр фото
+        function previewPhoto(event) {
+            const input = event.target;
+            const reader = new FileReader();
+            
+            reader.onload = function(){
+                const dataURL = reader.result;
+                const preview = document.getElementById('photoPreview');
+                preview.innerHTML = `<img src="${dataURL}" alt="Фото" class="photo-preview">`;
+                document.getElementById('photo_data').value = dataURL;
+            };
+            
+            if (input.files && input.files[0]) {
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
         
-        // Фокус на первое поле
-        const firstField = document.getElementById('full_name');
-        if (firstField) {
-            firstField.focus();
+        // Динамическое добавление опыта работы
+        function addExperience() {
+            const container = document.getElementById('experienceContainer');
+            const experienceItem = document.createElement('div');
+            experienceItem.className = 'experience-item';
+            experienceItem.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0">Новое место работы</h6>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="removeExperience(this)">
+                        <i class="fas fa-times"></i> Удалить
+                    </button>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Название компании</label>
+                        <input type="text" class="form-control" name="company[]" required placeholder="ООО 'Компания'">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Должность</label>
+                        <input type="text" class="form-control" name="position[]" required placeholder="Frontend Developer">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Дата начала</label>
+                        <input type="month" class="form-control" name="start_date[]" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Дата окончания</label>
+                        <input type="month" class="form-control" name="end_date[]" placeholder="По настоящее время">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <label class="form-label">Обязанности и достижения</label>
+                        <textarea class="form-control" name="responsibilities[]" rows="3" required placeholder="Опишите ваши обязанности и достижения..."></textarea>
+                    </div>
+                </div>
+            `;
+            container.appendChild(experienceItem);
         }
         
-        // Подтверждение отправки
-        const form = document.getElementById('portfolioForm');
-        if (form) {
-            form.addEventListener('submit', function() {
-                const submitBtn = form.querySelector('.btn-submit');
-                if (submitBtn) {
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Сохранение...';
-                    submitBtn.disabled = true;
-                }
-            });
-        }
-            
-            // Обработка подсказок для образования
-            const educationInput = document.getElementById('education');
-            const suggestionsBtn = document.getElementById('educationSuggestBtn');
-            const suggestionsDropdown = document.getElementById('educationSuggestions');
-            
-            if (educationInput && suggestionsBtn && suggestionsDropdown) {
-                // Показать подсказки при клике на кнопку
-                suggestionsBtn.addEventListener('click', function() {
-                    if (suggestionsDropdown.style.display === 'none') {
-                        suggestionsDropdown.style.display = 'block';
-                        positionDropdown();
-                    } else {
-                        suggestionsDropdown.style.display = 'none';
-                    }
-                });
-                
-                // Показать подсказки при фокусе на поле
-                educationInput.addEventListener('focus', function() {
-                    suggestionsDropdown.style.display = 'block';
-                    positionDropdown();
-                });
-                
-                // Спрятать подсказки при клике вне
-                document.addEventListener('click', function(event) {
-                    if (!educationInput.contains(event.target) && 
-                        !suggestionsBtn.contains(event.target) && 
-                        !suggestionsDropdown.contains(event.target)) {
-                        suggestionsDropdown.style.display = 'none';
-                    }
-                });
-                
-                // Выбор подсказки
-                const suggestionItems = suggestionsDropdown.querySelectorAll('.suggestion-item');
-                suggestionItems.forEach(item => {
-                    item.addEventListener('click', function() {
-                        const currentValue = educationInput.value;
-                        const suggestionValue = this.getAttribute('data-value');
-                        
-                        if (currentValue.trim() === '') {
-                            educationInput.value = suggestionValue;
-                        } else {
-                            // Добавляем к существующему значению через запятую
-                            const values = currentValue.split(',').map(v => v.trim());
-                            if (!values.includes(suggestionValue)) {
-                                educationInput.value = currentValue + (currentValue.endsWith(',') ? ' ' : ', ') + suggestionValue;
-                            }
-                        }
-                        
-                        suggestionsDropdown.style.display = 'none';
-                        educationInput.focus();
-                    });
-                });
-                
-                // Поиск при вводе
-                educationInput.addEventListener('input', function() {
-                    const searchTerm = this.value.toLowerCase();
-                    suggestionItems.forEach(item => {
-                        const text = item.textContent.toLowerCase();
-                        if (text.includes(searchTerm)) {
-                            item.style.display = 'block';
-                        } else {
-                            item.style.display = 'none';
-                        }
-                    });
-                });
-                
-                // Позиционирование выпадающего списка
-                function positionDropdown() {
-                    const rect = educationInput.getBoundingClientRect();
-                    suggestionsDropdown.style.top = (rect.bottom + window.scrollY) + 'px';
-                    suggestionsDropdown.style.left = (rect.left + window.scrollX) + 'px';
-                }
-                
-                // Перепозиционировать при изменении размера окна
-                window.addEventListener('resize', positionDropdown);
-            }
-            
-            
-            // ИСПРАВЛЕНО: Форматирование даты рождения
-        const birthDateInput = document.getElementById('birth_date');
-        if (birthDateInput) {
-            // Устанавливаем максимальную дату (сегодняшний день) только если поле пустое
-            // Если уже есть значение, не меняем его
-            if (!birthDateInput.value) {
-                const today = new Date();
-                const minDate = new Date(today.getFullYear() - 100, today.getMonth(), today.getDate()); // 100 лет назад
-                const maxDate = new Date(today.getFullYear() - 16, today.getMonth(), today.getDate()); // 16 лет назад
-                
-                birthDateInput.min = minDate.toISOString().split('T')[0];
-                birthDateInput.max = maxDate.toISOString().split('T')[0];
-            }
-            
-            // Форматирование для отображения
-            birthDateInput.addEventListener('change', function() {
-                if (this.value) {
-                    const date = new Date(this.value);
-                    const formattedDate = date.toLocaleDateString('ru-RU');
-                    this.setAttribute('data-formatted', formattedDate);
-                }
-            });
-            
-            // Если значение уже есть, конвертируем его в правильный формат для input[type="date"]
-            if (birthDateInput.value) {
-                // Проверяем формат даты (может быть в формате ДД.ММ.ГГГГ или ГГГГ-ММ-ДД)
-                const dateValue = birthDateInput.value;
-                if (dateValue.includes('.')) {
-                    // Формат ДД.ММ.ГГГГ -> конвертируем в ГГГГ-ММ-ДД
-                    const parts = dateValue.split('.');
-                    if (parts.length === 3) {
-                        birthDateInput.value = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-                    }
-                }
+        function removeExperience(button) {
+            const experienceItem = button.closest('.experience-item');
+            if (experienceItem) {
+                experienceItem.remove();
             }
         }
+        
+        // Динамическое добавление языков
+        function addLanguage() {
+            const container = document.getElementById('languagesContainer');
+            const languageItem = document.createElement('div');
+            languageItem.className = 'language-item';
+            languageItem.innerHTML = `
+                <select class="form-control" name="language[]" style="flex: 2;" required>
+                    <option value="">Выберите язык</option>
+                    <option value="Русский">Русский</option>
+                    <option value="Английский">Английский</option>
+                    <option value="Немецкий">Немецкий</option>
+                    <option value="Французский">Французский</option>
+                    <option value="Испанский">Испанский</option>
+                    <option value="Китайский">Китайский</option>
+                </select>
+                <select class="form-control" name="language_level[]" style="flex: 1;" required>
+                    <option value="">Уровень</option>
+                    <option value="A1">A1 (Начальный)</option>
+                    <option value="A2">A2 (Элементарный)</option>
+                    <option value="B1">B1 (Средний)</option>
+                    <option value="B2">B2 (Выше среднего)</option>
+                    <option value="C1">C1 (Продвинутый)</option>
+                    <option value="C2">C2 (В совершенстве)</option>
+                    <option value="Носитель">Носитель</option>
+                </select>
+                <button type="button" class="btn btn-danger btn-sm" onclick="removeLanguage(this)">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(languageItem);
+        }
+        
+        function removeLanguage(button) {
+            const languageItem = button.closest('.language-item');
+            if (languageItem && document.querySelectorAll('.language-item').length > 1) {
+                languageItem.remove();
+            }
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            // Добавляем первый язык при загрузке
+            if (document.querySelectorAll('.language-item').length === 0) {
+                addLanguage();
+            }
+            
+            // Анимация
+            const formElements = document.querySelectorAll('.fade-in');
+            formElements.forEach((el, index) => {
+                setTimeout(() => {
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
         });
     </script>
 </body>

@@ -33,20 +33,23 @@ def create_tables():
         phone TEXT,
         bio TEXT,
         skills TEXT,
-        experience TEXT,
+        job_position TEXT,
+        salary_expectations TEXT,
         education TEXT,
+        courses TEXT,
+        certificates TEXT,
+        github TEXT,
+        linkedin TEXT,
+        vk TEXT,
+        telegram TEXT,
+        portfolio_link TEXT,
+        photo TEXT,
+        experience TEXT,
+        languages TEXT,
         is_completed BOOLEAN DEFAULT FALSE,
         FOREIGN KEY (user_id) REFERENCES users (id)
     )
     ''')
-    
-    
-    try:
-        cursor.execute("SELECT birth_date FROM user_profiles LIMIT 1")
-    except sqlite3.OperationalError:
-        # Колонки не существует, добавляем её
-        print("Добавляем колонку birth_date в таблицу user_profiles...")
-        cursor.execute('ALTER TABLE user_profiles ADD COLUMN birth_date TEXT')
     
     # Создаем администратора по умолчанию
     cursor.execute("SELECT * FROM users WHERE username = 'admin'")
@@ -57,7 +60,7 @@ def create_tables():
 
     connection.commit()
     connection.close()
-    print("Таблицы созданы успешно")
+    print("Таблицы созданы успешно с новыми полями")
 
 # Измените путь к базе данных для Render
 def get_db_connection():
@@ -168,20 +171,27 @@ def edit_user(user_id):
     connection = get_db_connection()
     
     if request.method == 'POST':
-        full_name = request.form['full_name']
-        birth_date = request.form['birth_date']
-        email = request.form['email']
-        phone = request.form['phone']
-        bio = request.form['bio']
-        skills = request.form['skills']
-        experience = request.form['experience']
-        education = request.form['education']
+        full_name = request.form.get('full_name', '')
+        birth_date = request.form.get('birth_date', '')
+        email = request.form.get('email', '')
+        phone = request.form.get('phone', '')
+        bio = request.form.get('bio', '')
+        skills = request.form.get('skills', '')
+        job_position = request.form.get('job_position', '')
+        salary_expectations = request.form.get('salary_expectations', '')
+        education = request.form.get('education', '')
+        courses = request.form.get('courses', '')
+        certificates = request.form.get('certificates', '')
+        github = request.form.get('github', '')
+        linkedin = request.form.get('linkedin', '')
+        vk = request.form.get('vk', '')
+        telegram = request.form.get('telegram', '')
+        portfolio_link = request.form.get('portfolio_link', '')
         
+        # Обработка даты
         if birth_date:
             try:
-                if '-' in birth_date:
-                    pass
-                elif '.' in birth_date:
+                if '.' in birth_date:
                     parts = birth_date.split('.')
                     if len(parts) == 3:
                         birth_date = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
@@ -199,29 +209,38 @@ def edit_user(user_id):
                 # Обновляем существующий профиль и отмечаем как завершенный
                 connection.execute('''
                     UPDATE user_profiles 
-                    SET full_name = ?, birth_date = ?, email = ?, phone = ?, bio = ?, 
-                        skills = ?, experience = ?, education = ?, is_completed = TRUE
+                    SET full_name = ?, birth_date = ?, email = ?, phone = ?, 
+                        bio = ?, skills = ?, job_position = ?, salary_expectations = ?,
+                        education = ?, courses = ?, certificates = ?, github = ?,
+                        linkedin = ?, vk = ?, telegram = ?, portfolio_link = ?,
+                        is_completed = TRUE
                     WHERE user_id = ?
-                ''', (full_name, birth_date, email, phone, bio, skills, experience, education, user_id))
+                ''', (full_name, birth_date, email, phone, bio, skills, 
+                      job_position, salary_expectations, education, courses,
+                      certificates, github, linkedin, vk, telegram, 
+                      portfolio_link, user_id))
             else:
                 # Создаем новый профиль и отмечаем как завершенный
                 connection.execute('''
-                    INSERT INTO user_profiles (user_id, full_name, birth_date, email, phone, 
-                                              bio, skills, experience, education, is_completed)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
-                ''', (user_id, full_name, birth_date, email, phone, bio, skills, experience, education))
+                    INSERT INTO user_profiles 
+                    (user_id, full_name, birth_date, email, phone, bio, skills,
+                     job_position, salary_expectations, education, courses, certificates,
+                     github, linkedin, vk, telegram, portfolio_link, is_completed)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE)
+                ''', (user_id, full_name, birth_date, email, phone, bio, skills,
+                      job_position, salary_expectations, education, courses,
+                      certificates, github, linkedin, vk, telegram, portfolio_link))
             
             connection.commit()
             flash('Профиль пользователя успешно сохранен и опубликован!', 'success')
 
         except Exception as e:
             print(f"Ошибка сохранения профиля: {e}")
-            flash('Ошибка при сохранении профиля', 'error')
+            flash(f'Ошибка при сохранении профиля: {str(e)}', 'error')
         finally:
             connection.close()
         
         return redirect('/admin')
-    
     
     # GET запрос - получаем данные пользователя
     try:
@@ -302,33 +321,69 @@ def save_portfolio():
     if 'username' not in session:
         return redirect('/login')
     
-    full_name = request.form['full_name']
-    birth_date = request.form['birth_date']
-    email = request.form['email']
-    phone = request.form['phone']
-    bio = request.form['bio']
-    skills = request.form['skills']
-    experience = request.form['experience']
-    education = request.form['education']
-    
-    # ИСПРАВЛЕНО: Обработка даты рождения
-    if birth_date:
-        try:
-            # Проверяем формат даты (может быть ДД.ММ.ГГГГ или ГГГГ-ММ-ДД)
-            if '-' in birth_date:
-                # Формат ГГГГ-ММ-ДД - оставляем как есть
-                pass
-            elif '.' in birth_date:
-                # Конвертируем из ДД.ММ.ГГГГ в ГГГГ-ММ-ДД
-                parts = birth_date.split('.')
-                if len(parts) == 3:
-                    birth_date = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
-        except Exception as e:
-            print(f"Ошибка обработки даты: {e}")
-            # Если не удалось обработать, оставляем как есть
-            pass
-    
     try:
+        # Получаем данные формы - используем .get() вместо прямого доступа
+        full_name = request.form.get('full_name', '')
+        birth_date = request.form.get('birth_date', '')
+        email = request.form.get('email', '')
+        phone = request.form.get('phone', '')
+        bio = request.form.get('bio', '')
+        skills = request.form.get('skills', '')
+        job_position = request.form.get('job_position', '')
+        salary_expectations = request.form.get('salary_expectations', '')
+        education = request.form.get('education', '')
+        courses = request.form.get('courses', '')
+        certificates = request.form.get('certificates', '')
+        github = request.form.get('github', '')        
+        linkedin = request.form.get('linkedin', '')    
+        vk = request.form.get('vk', '')
+        telegram = request.form.get('telegram', '')
+        portfolio_link = request.form.get('portfolio_link', '')
+        photo_data = request.form.get('photo_data', '')
+        
+        # Получаем опыт работы
+        companies = request.form.getlist('company[]')
+        positions = request.form.getlist('position[]')
+        start_dates = request.form.getlist('start_date[]')
+        end_dates = request.form.getlist('end_date[]')
+        responsibilities = request.form.getlist('responsibilities[]')
+        
+        # Формируем опыт работы в текстовом виде
+        experience_parts = []
+        for i in range(len(companies)):
+            if companies[i] and positions[i]:
+                exp_text = f"{companies[i]} - {positions[i]}\n"
+                if start_dates[i]:
+                    exp_text += f"Период: {start_dates[i]}"
+                    if end_dates[i]:
+                        exp_text += f" - {end_dates[i]}\n"
+                    else:
+                        exp_text += " - по настоящее время\n"
+                if responsibilities[i]:
+                    exp_text += f"Обязанности: {responsibilities[i]}\n"
+                experience_parts.append(exp_text)
+        
+        experience = "\n---\n".join(experience_parts) if experience_parts else ""
+        
+        # Получаем языки
+        languages_list = request.form.getlist('language[]')
+        language_levels = request.form.getlist('language_level[]')
+        languages_text = ""
+        for i in range(len(languages_list)):
+            if languages_list[i] and language_levels[i]:
+                languages_text += f"{languages_list[i]} ({language_levels[i]})\n"
+        
+        # Обработка даты
+        if birth_date:
+            try:
+                if '.' in birth_date:
+                    parts = birth_date.split('.')
+                    if len(parts) == 3:
+                        birth_date = f"{parts[2]}-{parts[1].zfill(2)}-{parts[0].zfill(2)}"
+            except Exception as e:
+                print(f"Ошибка обработки даты: {e}")
+                pass
+        
         connection = get_db_connection()
         
         # Проверяем, существует ли уже профиль
@@ -341,39 +396,39 @@ def save_portfolio():
             connection.execute('''
                 UPDATE user_profiles 
                 SET full_name = ?, birth_date = ?, email = ?, phone = ?, 
-                    bio = ?, skills = ?, experience = ?, education = ?, is_completed = FALSE
+                    bio = ?, skills = ?, job_position = ?, salary_expectations = ?,
+                    education = ?, courses = ?, certificates = ?, github = ?,
+                    linkedin = ?, vk = ?, telegram = ?, portfolio_link = ?, 
+                    photo = ?, experience = ?, languages = ?, is_completed = FALSE
                 WHERE user_id = ?
-            ''', (full_name, birth_date, email, phone, bio, skills, experience, education, session['user_id']))
+            ''', (full_name, birth_date, email, phone, bio, skills, job_position,
+                  salary_expectations, education, courses, certificates, github,
+                  linkedin, vk, telegram, portfolio_link, photo_data, 
+                  experience, languages_text, session['user_id']))
         else:
             # Создаем новый профиль
             connection.execute('''
-                INSERT INTO user_profiles (user_id, full_name, birth_date, email, phone, 
-                                          bio, skills, experience, education, is_completed)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
-            ''', (session['user_id'], full_name, birth_date, email, phone, bio, skills, experience, education))
+                INSERT INTO user_profiles 
+                (user_id, full_name, birth_date, email, phone, bio, skills, 
+                 job_position, salary_expectations, education, courses, certificates,
+                 github, linkedin, vk, telegram, portfolio_link, photo, experience, 
+                 languages, is_completed)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)
+            ''', (session['user_id'], full_name, birth_date, email, phone, bio, skills,
+                  job_position, salary_expectations, education, courses, certificates,
+                  github, linkedin, vk, telegram, portfolio_link, photo_data, 
+                  experience, languages_text))
         
         connection.commit()
         connection.close()
         
-        flash('Ваши данные сохранены! Ожидайте, пока администратор проверит и опубликует ваше портфолио.', 'success')
+        flash('Ваши данные сохранены! Ожидайте проверки администратора.', 'success')
         return redirect('/user')
         
     except Exception as e:
         print(f"Ошибка сохранения портфолио: {e}")
-        # Восстанавливаем список учебных заведений для формы
-        education_suggestions = [
-            "Московский государственный университет",
-            "Санкт-Петербургский государственный университет",
-            # ... остальные ...
-        ]
-        return render_template('create_portfolio.html', 
-                             username=session['username'],
-                             profile={'full_name': full_name, 'birth_date': birth_date, 
-                                     'email': email, 'phone': phone, 'bio': bio,
-                                     'skills': skills, 'experience': experience, 
-                                     'education': education},
-                             education_suggestions=education_suggestions,
-                             error=f"Ошибка при сохранении: {str(e)}")
+        flash(f"Ошибка при сохранении: {str(e)}", 'error')
+        return redirect('/user/create_portfolio')
     
 @app.route('/user/view_portfolio')
 def view_portfolio():
