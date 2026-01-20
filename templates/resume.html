@@ -6,7 +6,7 @@
     <title>Резюме - {{ profile.full_name }}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Базовые стили */
+        /* Базовые стили для экрана */
         * {
             margin: 0;
             padding: 0;
@@ -14,10 +14,10 @@
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
+            font-family: 'Calibri', 'Arial', sans-serif;
+            font-size: 11pt;
+            line-height: 1.4;
+            color: #000;
             background: #f5f5f5;
             padding: 20px;
         }
@@ -73,39 +73,40 @@
             box-shadow: 0 5px 10px rgba(0,0,0,0.2);
         }
         
-        /* Основной контейнер - ОДНА СТРАНИЦА */
+        /* ОСНОВНОЙ КОНТЕЙНЕР РЕЗЮМЕ - СТАНДАРТ A4 */
         .resume-container {
-            width: 210mm;
-            min-height: 297mm;
+            width: 210mm; /* Ширина A4 */
+            min-height: 297mm; /* Высота A4 */
+            max-height: 297mm; /* Ограничиваем высотой A4 */
             margin: 20px auto;
             background: white;
-            padding: 20mm;
+            padding: 20mm 25mm; /* Больше отступы как в реальном резюме */
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* Предотвращаем выход за границы */
         }
         
-        /* Заголовок резюме */
+        /* ЗАГОЛОВОК РЕЗЮМЕ - КАК В ПРОФЕССИОНАЛЬНОМ РЕЗЮМЕ */
         .resume-header {
             display: flex;
-            align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 20px;
+            align-items: flex-start; /* Выравниваем по верху */
+            margin-bottom: 15mm;
+            padding-bottom: 5mm;
             border-bottom: 2px solid #2c3e50;
             flex-shrink: 0;
         }
         
         .photo-section {
             flex-shrink: 0;
-            margin-right: 30px;
+            margin-right: 15mm;
         }
         
         .photo-container {
-            width: 100px; /* Уменьшаем фото */
-            height: 100px;
-            border-radius: 50%;
+            width: 35mm; /* Стандартный размер фото для резюме */
+            height: 45mm; /* Пропорции 3.5x4.5 см */
             overflow: hidden;
-            border: 3px solid #2c3e50;
+            border: 1px solid #ddd;
             background: #f8f9fa;
         }
         
@@ -116,165 +117,174 @@
         }
         
         .no-photo {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2c3e50, #3498db);
+            width: 35mm;
+            height: 45mm;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 32px;
+            color: #999;
+            font-size: 24pt;
+            border: 1px solid #ddd;
         }
         
         .header-info {
             flex-grow: 1;
+            padding-top: 2mm;
         }
         
         .header-info h1 {
-            font-size: 24px;
+            font-size: 18pt; /* Уменьшаем для печати */
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 5px;
+            color: #000;
+            margin-bottom: 3mm;
             line-height: 1.2;
+            text-transform: uppercase; /* Как в профессиональном резюме */
         }
         
         .job-title {
-            font-size: 16px;
-            color: #3498db;
-            font-weight: 500;
-            margin-bottom: 10px;
+            font-size: 12pt;
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 8mm;
+            padding-bottom: 2mm;
+            border-bottom: 1px solid #eee;
         }
         
-        .contact-info {
+        /* КОНТАКТНАЯ ИНФОРМАЦИЯ - КОМПАКТНО */
+        .contact-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 8px;
-            margin-top: 8px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2mm 10mm;
+            margin-top: 2mm;
         }
         
         .contact-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            color: #555;
+            gap: 2mm;
+            font-size: 9pt;
+            color: #333;
         }
         
         .contact-item i {
-            color: #3498db;
-            width: 16px;
+            color: #666;
+            width: 12pt;
             text-align: center;
-            font-size: 13px;
+            font-size: 9pt;
+            flex-shrink: 0;
         }
         
-        /* Основной контент - растягиваем чтобы заполнить страницу */
+        /* ОСНОВНОЙ КОНТЕНТ - ДВЕ КОЛОНКИ */
         .resume-content {
             flex-grow: 1;
+            display: grid;
+            grid-template-columns: 60% 40%; /* Левая колонка шире для основного содержания */
+            gap: 8mm;
+            overflow: hidden; /* Предотвращаем выход за границы */
+        }
+        
+        /* ОБЩИЕ СТИЛИ ДЛЯ СЕКЦИЙ */
+        .resume-section {
+            margin-bottom: 6mm;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 11pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 3mm;
+            padding-bottom: 1mm;
+            border-bottom: 1px solid #2c3e50;
+            text-transform: uppercase;
+            letter-spacing: 0.5pt;
+        }
+        
+        /* ЛЕВАЯ КОЛОНКА - ОСНОВНОЕ СОДЕРЖАНИЕ */
+        .left-column {
             display: flex;
             flex-direction: column;
         }
         
-        /* Двухколоночный макет */
-        .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            flex-grow: 1;
-        }
-        
-        /* Секции резюме */
-        .resume-section {
-            margin-bottom: 20px;
-        }
-        
-        .section-title {
-            font-size: 16px;
-            font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 12px;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #eee;
+        /* ПРАВАЯ КОЛОНКА - ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ */
+        .right-column {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
         }
         
-        .section-title i {
-            color: #3498db;
-            font-size: 15px;
-        }
-        
-        /* Опыт работы - компактнее */
+        /* ОПЫТ РАБОТЫ - ПРОФЕССИОНАЛЬНЫЙ ВИД */
         .experience-item {
-            margin-bottom: 15px;
+            margin-bottom: 5mm;
+            page-break-inside: avoid;
         }
         
         .experience-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 5px;
+            margin-bottom: 1mm;
         }
         
         .company-info h4 {
-            font-size: 14px;
+            font-size: 10pt;
             font-weight: bold;
-            color: #2c3e50;
-            margin-bottom: 2px;
+            color: #000;
+            margin-bottom: 0.5mm;
         }
         
         .position {
-            font-size: 13px;
-            font-weight: 500;
-            color: #555;
-            margin-bottom: 3px;
+            font-size: 9.5pt;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 1mm;
+            font-style: italic;
         }
         
         .period {
             color: #666;
-            font-size: 12px;
+            font-size: 9pt;
             white-space: nowrap;
-        }
-        
-        .responsibilities {
-            color: #444;
-            font-size: 12.5px;
-            line-height: 1.4;
-            margin-top: 4px;
-        }
-        
-        /* Навыки */
-        .skills-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 5px;
-        }
-        
-        .skill-tag {
-            background: #e8f4fc;
-            color: #2c3e50;
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 12px;
             font-weight: 500;
         }
         
-        /* Языки */
-        .languages-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 8px;
-            margin-top: 5px;
+        .responsibilities {
+            color: #333;
+            font-size: 9.5pt;
+            line-height: 1.3;
+            margin-top: 1mm;
         }
         
-        .language-item {
+        /* НАВЫКИ - КОМПАКТНЫЙ СПИСОК */
+        .skills-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2mm;
+            margin-top: 2mm;
+        }
+        
+        .skill-tag {
+            background: #f0f0f0;
+            color: #333;
+            padding: 1mm 3mm;
+            border-radius: 1mm;
+            font-size: 9pt;
+            font-weight: 500;
+            border-left: 2px solid #2c3e50;
+        }
+        
+        /* ЯЗЫКИ - ТАБЛИЧНЫЙ ВИД */
+        .languages-table {
+            width: 100%;
+            margin-top: 2mm;
+        }
+        
+        .language-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 3px 0;
-            font-size: 13px;
+            padding: 1mm 0;
+            font-size: 9.5pt;
+            border-bottom: 1px dashed #eee;
         }
         
         .language-name {
@@ -282,32 +292,82 @@
         }
         
         .language-level {
-            color: #3498db;
-            font-size: 12px;
+            color: #2c3e50;
+            font-weight: 500;
         }
         
-        /* Образование */
-        .education-content {
-            font-size: 13px;
-            line-height: 1.4;
+        /* ОБРАЗОВАНИЕ */
+        .education-item {
+            margin-bottom: 4mm;
         }
         
-        /* Для многострочного текста */
+        .education-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1mm;
+        }
+        
+        .education-name {
+            font-weight: bold;
+            font-size: 10pt;
+        }
+        
+        .education-years {
+            color: #666;
+            font-size: 9pt;
+        }
+        
+        .education-specialty {
+            font-size: 9.5pt;
+            color: #2c3e50;
+            font-style: italic;
+        }
+        
+        /* МНОГОСТРОЧНЫЙ ТЕКСТ */
         .multi-line {
             white-space: pre-line;
-            line-height: 1.5;
-            font-size: 13px;
+            line-height: 1.3;
+            font-size: 9.5pt;
+            text-align: justify;
         }
         
-        /* Печать */
+        /* ЛИЧНЫЕ КАЧЕСТВА */
+        .qualities-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .qualities-list li {
+            margin-bottom: 1mm;
+            font-size: 9.5pt;
+            padding-left: 3mm;
+            position: relative;
+        }
+        
+        .qualities-list li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #2c3e50;
+        }
+        
+        /* ДОПОЛНИТЕЛЬНАЯ ИНФОРМАЦИЯ */
+        .additional-info {
+            font-size: 9.5pt;
+            line-height: 1.3;
+        }
+        
+        /* СТИЛИ ДЛЯ ПЕЧАТИ */
         @media print {
             body {
                 background: white !important;
                 padding: 0 !important;
                 margin: 0 !important;
-                font-size: 12pt !important;
                 width: 210mm !important;
                 height: 297mm !important;
+                font-size: 11pt !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             
             .print-controls {
@@ -317,88 +377,72 @@
             .resume-container {
                 box-shadow: none !important;
                 margin: 0 !important;
-                padding: 15mm !important;
+                padding: 20mm 25mm !important;
                 width: 210mm !important;
                 min-height: 297mm !important;
                 max-height: 297mm !important;
                 page-break-after: avoid !important;
                 page-break-inside: avoid !important;
+                overflow: visible !important;
             }
             
-            /* Уменьшаем размеры для печати */
-            .resume-header {
-                margin-bottom: 15px;
-                padding-bottom: 15px;
-            }
-            
-            .photo-container, .no-photo {
-                width: 90px;
-                height: 90px;
-            }
-            
+            /* Оптимизация шрифтов для печати */
             .header-info h1 {
-                font-size: 22px;
+                font-size: 18pt !important;
             }
             
             .job-title {
-                font-size: 15px;
+                font-size: 12pt !important;
             }
             
             .contact-item {
-                font-size: 11px;
+                font-size: 9pt !important;
             }
             
             .section-title {
-                font-size: 15px;
-                margin-bottom: 10px;
+                font-size: 11pt !important;
             }
             
             .company-info h4 {
-                font-size: 13px;
+                font-size: 10pt !important;
             }
             
             .position, .period {
-                font-size: 12px;
+                font-size: 9.5pt !important;
             }
             
-            .responsibilities, .multi-line, .education-content {
-                font-size: 12px;
+            .responsibilities, .multi-line, .education-specialty {
+                font-size: 9.5pt !important;
             }
             
             .skill-tag {
-                font-size: 11px;
-                padding: 3px 8px;
-            }
-            
-            /* Убираем футер */
-            .resume-footer {
-                display: none !important;
+                font-size: 9pt !important;
             }
             
             /* Настройки страницы */
             @page {
                 size: A4 portrait;
-                margin: 15mm;
+                margin: 20mm 25mm; /* Совпадает с padding в .resume-container */
             }
             
-            /* Отключаем все ненужное */
+            /* Убираем все фоны и градиенты для печати */
             * {
+                color-adjust: exact !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
-                overflow: visible !important;
             }
         }
         
-        /* Адаптивность */
+        /* АДАПТИВНОСТЬ ДЛЯ ЭКРАНА */
         @media (max-width: 1200px) {
             .resume-container {
                 width: 100%;
                 padding: 15mm;
             }
             
-            .two-columns {
+            .resume-content {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 6mm;
             }
         }
         
@@ -434,25 +478,45 @@
             
             .photo-section {
                 margin-right: 0;
-                margin-bottom: 15px;
+                margin-bottom: 5mm;
             }
             
-            .contact-info {
+            .contact-grid {
                 grid-template-columns: 1fr;
                 justify-items: center;
             }
         }
         
-        /* Утилитные классы */
-        .mb-1 { margin-bottom: 4px; }
-        .mb-2 { margin-bottom: 8px; }
-        .mb-3 { margin-bottom: 12px; }
-        .mt-1 { margin-top: 4px; }
-        .mt-2 { margin-top: 8px; }
-        .mt-3 { margin-top: 12px; }
+        /* УТИЛИТНЫЕ КЛАССЫ */
+        .mb-1 { margin-bottom: 1mm; }
+        .mb-2 { margin-bottom: 2mm; }
+        .mb-3 { margin-bottom: 3mm; }
+        .mb-4 { margin-bottom: 4mm; }
+        .mb-5 { margin-bottom: 5mm; }
+        
+        .mt-1 { margin-top: 1mm; }
+        .mt-2 { margin-top: 2mm; }
+        .mt-3 { margin-top: 3mm; }
         
         .text-muted {
             color: #666;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        /* ПРОФЕССИОНАЛЬНЫЕ РАЗДЕЛИТЕЛИ */
+        .divider {
+            height: 1px;
+            background: #ddd;
+            margin: 3mm 0;
+        }
+        
+        /* ИКОНКИ ДЛЯ РАЗДЕЛОВ */
+        .section-icon {
+            margin-right: 2mm;
+            color: #2c3e50;
         }
     </style>
 </head>
@@ -484,7 +548,7 @@
                 </div>
                 {% else %}
                 <div class="no-photo">
-                    <i class="fas fa-user"></i>
+                    <i class="fas fa-user-tie"></i>
                 </div>
                 {% endif %}
             </div>
@@ -496,7 +560,7 @@
                 <div class="job-title">{{ profile.job_position }}</div>
                 {% endif %}
                 
-                <div class="contact-info">
+                <div class="contact-grid">
                     {% if profile.email %}
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
@@ -513,10 +577,10 @@
                     
                     {% if profile.birth_date %}
                     <div class="contact-item">
-                        <i class="fas fa-birthday-cake"></i>
+                        <i class="fas fa-calendar-alt"></i>
                         <span>
                             {% set birth_date = profile.birth_date.split('-') %}
-                            {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
+                            Дата рождения: {{ birth_date[2] }}.{{ birth_date[1] }}.{{ birth_date[0] }}
                         </span>
                     </div>
                     {% endif %}
@@ -524,28 +588,35 @@
                     {% if profile.linkedin %}
                     <div class="contact-item">
                         <i class="fab fa-linkedin"></i>
-                        <span>{{ profile.linkedin|replace('https://', '')|replace('http://', '') }}</span>
+                        <span>{{ profile.linkedin|replace('https://', '')|replace('http://', '')|truncate(30) }}</span>
                     </div>
                     {% endif %}
                     
                     {% if profile.github %}
                     <div class="contact-item">
                         <i class="fab fa-github"></i>
-                        <span>{{ profile.github|replace('https://', '')|replace('http://', '') }}</span>
+                        <span>{{ profile.github|replace('https://', '')|replace('http://', '')|truncate(30) }}</span>
                     </div>
                     {% endif %}
                     
                     {% if profile.vk %}
                     <div class="contact-item">
                         <i class="fab fa-vk"></i>
-                        <span>{{ profile.vk|replace('https://', '')|replace('http://', '') }}</span>
+                        <span>{{ profile.vk|replace('https://', '')|replace('http://', '')|truncate(30) }}</span>
                     </div>
                     {% endif %}
                     
                     {% if profile.telegram %}
                     <div class="contact-item">
                         <i class="fab fa-telegram"></i>
-                        <span>{{ profile.telegram|replace('@', '')|replace('https://t.me/', '') }}</span>
+                        <span>{{ profile.telegram|replace('@', '')|replace('https://t.me/', '')|truncate(30) }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.portfolio_link %}
+                    <div class="contact-item">
+                        <i class="fas fa-globe"></i>
+                        <span>{{ profile.portfolio_link|replace('https://', '')|replace('http://', '')|truncate(30) }}</span>
                     </div>
                     {% endif %}
                 </div>
@@ -554,131 +625,202 @@
 
         <!-- Основной контент -->
         <div class="resume-content">
-            <div class="two-columns">
-                <!-- Левая колонка -->
-                <div>
-                    <!-- О себе -->
-                    {% if profile.bio %}
-                    <div class="resume-section">
-                        <div class="section-title">
-                            <i class="fas fa-user"></i>
-                            О себе
-                        </div>
-                        <div class="multi-line">{{ profile.bio }}</div>
+            <!-- Левая колонка - Основное содержание -->
+            <div class="left-column">
+                <!-- Опыт работы -->
+                {% if profile.experience %}
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-briefcase section-icon"></i>
+                        Опыт работы
                     </div>
-                    {% endif %}
-
-                    <!-- Навыки -->
-                    {% if profile.skills %}
-                    <div class="resume-section">
-                        <div class="section-title">
-                            <i class="fas fa-cogs"></i>
-                            Навыки
-                        </div>
-                        <div class="skills-list">
-                            {% set skills = profile.skills.split(',') %}
-                            {% for skill in skills %}
-                            {% if skill.strip() %}
-                            <span class="skill-tag">{{ skill.strip() }}</span>
-                            {% endif %}
-                            {% endfor %}
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Языки -->
-                    {% if profile.languages %}
-                    <div class="resume-section">
-                        <div class="section-title">
-                            <i class="fas fa-language"></i>
-                            Языки
-                        </div>
-                        <div class="languages-list">
-                            {% for line in profile.languages.split('\n') %}
-                            {% if line.strip() %}
-                            {% set parts = line.strip().split('(') %}
-                            <div class="language-item">
-                                <span class="language-name">{{ parts[0].strip() }}</span>
-                                <span class="language-level">{{ parts[1]|replace(')', '') if parts|length > 1 else '' }}</span>
+                    {% for exp in profile.experience.split('---') if exp.strip() %}
+                    <div class="experience-item">
+                        {% set lines = exp.strip().split('\n') %}
+                        {% if lines|length > 0 %}
+                        <div class="experience-header">
+                            <div class="company-info">
+                                {% set first_line = lines[0] %}
+                                {% if ' - ' in first_line %}
+                                <h4>{{ first_line.split(' - ')[0] }}</h4>
+                                <div class="position">{{ first_line.split(' - ')[1] }}</div>
+                                {% else %}
+                                <h4>{{ first_line }}</h4>
+                                {% endif %}
                             </div>
+                            {% for line in lines %}
+                            {% if 'Период:' in line %}
+                            <div class="period">{{ line|replace('Период:', '')|trim }}</div>
                             {% endif %}
                             {% endfor %}
                         </div>
-                    </div>
-                    {% endif %}
-
-                    <!-- Курсы и сертификаты -->
-                    {% if profile.courses or profile.certificates %}
-                    <div class="resume-section">
-                        <div class="section-title">
-                            <i class="fas fa-award"></i>
-                            Курсы и сертификаты
+                        {% for line in lines %}
+                        {% if 'Обязанности:' in line %}
+                        <div class="responsibilities mt-1">
+                            {{ line|replace('Обязанности:', '')|trim }}
                         </div>
+                        {% endif %}
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    {% if not loop.last %}<div class="divider"></div>{% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Образование -->
+                {% if profile.education %}
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-graduation-cap section-icon"></i>
+                        Образование
+                    </div>
+                    {% for edu in profile.education.split('\n') if edu.strip() %}
+                    <div class="education-item">
+                        <div class="education-header">
+                            <div class="education-name">{{ edu.split(',')[0] if ',' in edu else edu }}</div>
+                            {% if ',' in edu and edu.split(',')|length > 1 %}
+                            <div class="education-years">{{ edu.split(',')[1].strip() }}</div>
+                            {% endif %}
+                        </div>
+                        {% if ',' in edu and edu.split(',')|length > 2 %}
+                        <div class="education-specialty">{{ edu.split(',')[2].strip() }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Навыки -->
+                {% if profile.skills %}
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-cogs section-icon"></i>
+                        Профессиональные навыки
+                    </div>
+                    <div class="skills-list">
+                        {% set skills = profile.skills.split(',') %}
+                        {% for skill in skills %}
+                        {% if skill.strip() %}
+                        <span class="skill-tag">{{ skill.strip() }}</span>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Правая колонка - Дополнительная информация -->
+            <div class="right-column">
+                <!-- О себе -->
+                {% if profile.bio %}
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-user section-icon"></i>
+                        О себе
+                    </div>
+                    <div class="multi-line">{{ profile.bio|truncate(300) }}</div>
+                </div>
+                {% endif %}
+
+                <!-- Языки -->
+                {% if profile.languages %}
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-language section-icon"></i>
+                        Языки
+                    </div>
+                    <div class="languages-table">
+                        {% for line in profile.languages.split('\n') %}
+                        {% if line.strip() %}
+                        {% set parts = line.strip().split('(') %}
+                        <div class="language-row">
+                            <span class="language-name">{{ parts[0].strip() }}</span>
+                            <span class="language-level">{{ parts[1]|replace(')', '') if parts|length > 1 else '' }}</span>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Курсы и сертификаты -->
+                {% if profile.courses or profile.certificates %}
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-certificate section-icon"></i>
+                        Курсы и сертификаты
+                    </div>
+                    <div class="additional-info">
                         {% if profile.courses %}
                         <div class="mb-2">
-                            <div class="multi-line">{{ profile.courses }}</div>
+                            <strong>Курсы:</strong>
+                            <div class="multi-line">{{ profile.courses|truncate(150) }}</div>
                         </div>
                         {% endif %}
                         
                         {% if profile.certificates %}
-                        <div class="multi-line">{{ profile.certificates }}</div>
+                        <div class="mb-2">
+                            <strong>Сертификаты:</strong>
+                            <div class="multi-line">{{ profile.certificates|truncate(150) }}</div>
+                        </div>
                         {% endif %}
                     </div>
-                    {% endif %}
                 </div>
+                {% endif %}
 
-                <!-- Правая колонка -->
-                <div>
-                    <!-- Опыт работы -->
-                    {% if profile.experience %}
-                    <div class="resume-section">
-                        <div class="section-title">
-                            <i class="fas fa-briefcase"></i>
-                            Опыт работы
-                        </div>
-                        {% for exp in profile.experience.split('---') if exp.strip() %}
-                        <div class="experience-item">
-                            {% set lines = exp.strip().split('\n') %}
-                            {% if lines|length > 0 %}
-                            <div class="experience-header">
-                                <div class="company-info">
-                                    {% set first_line = lines[0] %}
-                                    {% if ' - ' in first_line %}
-                                    <h4>{{ first_line.split(' - ')[0] }}</h4>
-                                    <div class="position">{{ first_line.split(' - ')[1] }}</div>
-                                    {% else %}
-                                    <h4>{{ first_line }}</h4>
-                                    {% endif %}
-                                </div>
-                                {% for line in lines %}
-                                {% if 'Период:' in line %}
-                                <div class="period">{{ line|replace('Период:', '')|trim }}</div>
-                                {% endif %}
-                                {% endfor %}
-                            </div>
-                            {% for line in lines %}
-                            {% if 'Обязанности:' in line %}
-                            <div class="responsibilities mt-1">
-                                {{ line|replace('Обязанности:', '')|trim }}
-                            </div>
-                            {% endif %}
-                            {% endfor %}
-                            {% endif %}
-                        </div>
-                        {% endfor %}
+                <!-- Личные качества -->
+                {% if profile.bio and 'ответственн' in profile.bio.lower() or 'стрессоустойчив' in profile.bio.lower() or 'коммуникабелен' in profile.bio.lower() %}
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-star section-icon"></i>
+                        Личные качества
                     </div>
-                    {% endif %}
+                    <ul class="qualities-list">
+                        {% if 'ответственн' in profile.bio.lower() %}
+                        <li>Ответственность</li>
+                        {% endif %}
+                        {% if 'стрессоустойчив' in profile.bio.lower() %}
+                        <li>Стрессоустойчивость</li>
+                        {% endif %}
+                        {% if 'коммуникабелен' in profile.bio.lower() %}
+                        <li>Коммуникабельность</li>
+                        {% endif %}
+                        {% if 'обучаем' in profile.bio.lower() %}
+                        <li>Обучаемость</li>
+                        {% endif %}
+                        {% if 'целеустремлен' in profile.bio.lower() %}
+                        <li>Целеустремленность</li>
+                        {% endif %}
+                        {% if 'инициатив' in profile.bio.lower() %}
+                        <li>Инициативность</li>
+                        {% endif %}
+                    </ul>
+                </div>
+                {% endif %}
 
-                    <!-- Образование -->
-                    {% if profile.education %}
-                    <div class="resume-section">
-                        <div class="section-title">
-                            <i class="fas fa-graduation-cap"></i>
-                            Образование
-                        </div>
-                        <div class="education-content multi-line">{{ profile.education }}</div>
+                <!-- Дополнительная информация -->
+                <div class="resume-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle section-icon"></i>
+                        Дополнительно
                     </div>
-                    {% endif %}
+                    <div class="additional-info">
+                        <div class="mb-2">
+                            <strong>Готовность к переезду:</strong> Да
+                        </div>
+                        <div class="mb-2">
+                            <strong>Занятость:</strong> Полная
+                        </div>
+                        <div class="mb-2">
+                            <strong>График работы:</strong> Полный день
+                        </div>
+                        {% if profile.salary_expectations %}
+                        <div class="mb-2">
+                            <strong>Ожидания по зарплате:</strong> {{ profile.salary_expectations }}
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -686,6 +828,14 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
+        // Фильтр truncate для Jinja2
+        function truncateFilter(str, length) {
+            if (str.length > length) {
+                return str.substring(0, length) + '...';
+            }
+            return str;
+        }
+        
         // Функция для печати
         function printResume() {
             // Сохраняем оригинальные стили
@@ -696,12 +846,13 @@
             };
             
             // Применяем стили для печати
-            document.body.style.fontSize = '12pt';
+            document.body.style.fontSize = '11pt';
             document.body.style.padding = '0';
             document.body.style.margin = '0';
             
-            // Скроллим наверх
-            window.scrollTo(0, 0);
+            // Устанавливаем размер A4
+            document.body.style.width = '210mm';
+            document.body.style.height = '297mm';
             
             // Ждем немного и печатаем
             setTimeout(() => {
@@ -712,8 +863,10 @@
                     document.body.style.fontSize = originalStyles.fontSize;
                     document.body.style.padding = originalStyles.padding;
                     document.body.style.margin = originalStyles.margin;
+                    document.body.style.width = '';
+                    document.body.style.height = '';
                 }, 100);
-            }, 100);
+            }, 500);
         }
         
         // Функция для скачивания PDF
@@ -722,26 +875,26 @@
             
             const btn = event.target.closest('button');
             const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание...';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Создание PDF...';
             btn.disabled = true;
             
             window.scrollTo(0, 0);
             
             setTimeout(() => {
                 const opt = {
-                    margin: [10, 10, 10, 10],
+                    margin: [20, 25, 20, 25], // Совпадает с отступами в контейнере
                     filename: 'резюме_{{ profile.full_name|replace(" ", "_") }}.pdf',
                     image: { 
                         type: 'jpeg', 
-                        quality: 0.95 
+                        quality: 0.98 
                     },
                     html2canvas: { 
                         scale: 2,
                         useCORS: true,
                         logging: false,
                         backgroundColor: '#ffffff',
-                        windowWidth: 794,
-                        windowHeight: 1123,
+                        windowWidth: 794, // 210mm в пикселях
+                        windowHeight: 1123, // 297mm в пикселях
                         scrollX: 0,
                         scrollY: 0
                     },
@@ -762,49 +915,64 @@
                     btn.disabled = false;
                     alert('Ошибка при создании PDF');
                 });
-            }, 200);
+            }, 500);
         }
         
-        // Автоматическая подгонка под одну страницу
+        // Автоматическая подгонка под страницу A4
         document.addEventListener('DOMContentLoaded', function() {
-            // Функция для проверки и корректировки высоты
-            function adjustForSinglePage() {
+            // Проверяем высоту контента
+            function checkHeight() {
                 const container = document.querySelector('.resume-container');
-                const content = document.querySelector('.resume-content');
-                
-                // Получаем высоту контейнера и содержимого
-                const containerHeight = container.offsetHeight;
-                const contentHeight = content.offsetHeight;
+                const contentHeight = container.scrollHeight;
+                const maxHeight = 297; // mm
                 
                 // Если контент слишком длинный, уменьшаем шрифты
-                if (contentHeight > 1800) { // Примерный лимит для одной страницы
-                    const scaleFactor = 1800 / contentHeight;
+                if (contentHeight > 280 * 3.78) { // Конвертируем mm в px (1mm ≈ 3.78px)
+                    const scaleFactor = (280 * 3.78) / contentHeight;
                     
-                    // Уменьшаем размеры шрифтов
-                    document.querySelectorAll('.resume-content *').forEach(el => {
+                    // Уменьшаем размеры шрифтов постепенно
+                    const elements = document.querySelectorAll('.resume-container *');
+                    elements.forEach(el => {
                         const style = window.getComputedStyle(el);
                         const fontSize = parseFloat(style.fontSize);
-                        if (fontSize > 10) { // Минимальный размер
-                            el.style.fontSize = (fontSize * 0.95) + 'px';
+                        if (fontSize > 8) {
+                            el.style.fontSize = (fontSize * 0.97) + 'px';
                         }
                     });
                     
                     // Уменьшаем отступы
                     document.querySelectorAll('.resume-section').forEach(el => {
-                        el.style.marginBottom = '15px';
+                        el.style.marginBottom = '4mm';
                     });
                     
                     document.querySelectorAll('.experience-item').forEach(el => {
-                        el.style.marginBottom = '12px';
+                        el.style.marginBottom = '3mm';
                     });
                 }
             }
             
             // Проверяем после загрузки
-            setTimeout(adjustForSinglePage, 500);
+            setTimeout(checkHeight, 1000);
             
             // И при изменении размера окна
-            window.addEventListener('resize', adjustForSinglePage);
+            window.addEventListener('resize', checkHeight);
+            
+            // Добавляем обработчик для печати
+            window.addEventListener('beforeprint', function() {
+                // Увеличиваем немного шрифты для печати
+                document.querySelectorAll('.resume-container *').forEach(el => {
+                    const style = window.getComputedStyle(el);
+                    const fontSize = parseFloat(style.fontSize);
+                    el.style.fontSize = (fontSize * 1.05) + 'px';
+                });
+            });
+            
+            window.addEventListener('afterprint', function() {
+                // Возвращаем оригинальные размеры
+                document.querySelectorAll('.resume-container *').forEach(el => {
+                    el.style.fontSize = '';
+                });
+            });
         });
     </script>
 </body>
